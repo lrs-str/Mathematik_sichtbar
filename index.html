@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erweitern und Kürzen üben</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+/* Layout: Karopapier als Grund, darauf Zettel (Stationen, Arbeitskarte) mit Bleistiftrahmen. Orange = Buntstift-Schraffur und Hauptaktion, Gelb = Textmarker für Auswahl und Erfolg. */
+:root{
+  --paper:#fbf8ef;
+  --grid:#d9e2ea;
+  --sheet:#fffdf7;
+  --graphite:#3b3a37;
+  --pencil:#6f6c66;
+  --orange:#ef7a1a;
+  --orange-soft:#ffe1c2;
+  --yellow:#ffd23f;
+  --yellow-soft:#fff3b0;
+  --focus:#ef7a1a;
+  --hand:"Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  --display:"Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  --wob1:255px 18px 225px 18px / 18px 225px 18px 255px;
+  --wob2:18px 225px 18px 255px / 255px 18px 225px 18px;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  color:var(--graphite);font-family:var(--hand);font-size:20px;line-height:1.45;
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:19px 19px;
+}
+main{max-width:900px;margin:0 auto;padding:22px 16px 32px;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:400;font-size:2.6rem;margin:0;line-height:1.05;text-wrap:balance;display:inline;
+   background:linear-gradient(transparent 55%, var(--yellow) 55%, var(--yellow) 88%, transparent 88%);padding:0 6px}
+.sub{margin:8px 0 0;color:var(--pencil);font-size:1.05rem}
+.chips{display:flex;gap:10px}
+.chip{background:var(--sheet);border:2px solid var(--graphite);border-radius:var(--wob1);padding:3px 14px;font-size:1.1rem;font-variant-numeric:tabular-nums;transform:rotate(-1.5deg)}
+.chip + .chip{transform:rotate(1.2deg)}
+.chip b{color:var(--orange);font-weight:400;font-size:1.25rem}
+.appswitch{display:flex;justify-content:center}
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px;max-width:100%}
+.seg button{font:inherit;font-size:1.02rem;border:2px solid var(--graphite);background:var(--sheet);color:var(--graphite);padding:3px 12px;cursor:pointer;border-radius:var(--wob1);white-space:nowrap}
+.seg button:nth-child(even){border-radius:var(--wob2)}
+.seg button[aria-pressed="true"]{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite)}
+.appswitch .seg button{font-size:1.2rem;padding:5px 22px}
+.settings{display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center;background:var(--sheet);border:2px solid var(--graphite);border-radius:var(--wob2);padding:12px 16px}
+.group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.group > span{color:var(--pencil);font-size:1rem}
+.path,.card{background:var(--sheet);border:2.5px solid var(--graphite);box-shadow:3px 4px 0 rgba(59,58,55,.85)}
+.path{border-radius:var(--wob1);padding:14px 20px;display:flex;flex-direction:column;gap:8px;transform:rotate(-.4deg)}
+.card{border-radius:var(--wob2);padding:22px;display:flex;flex-direction:column;gap:14px}
+.stations{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.stations button{font-family:var(--display);font-size:1.2rem;width:42px;height:42px;border-radius:50% 46% 52% 48% / 48% 52% 46% 50%;border:2px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;line-height:1}
+.stations button.done{background:var(--yellow)}
+.stations button.done::after{content:"✓";font-size:.75rem;margin-left:1px}
+.stations button.current{background:var(--orange);color:#fff;box-shadow:2px 3px 0 var(--graphite)}
+.stations button:disabled{border-style:dashed;color:var(--pencil);opacity:.6;cursor:not-allowed}
+.stage-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px}
+.stage-head h2{font-family:var(--display);font-weight:400;font-size:1.6rem;margin:0}
+.stage-prog{color:var(--pencil);font-variant-numeric:tabular-nums}
+.stage-intro{margin:0}
+.dots{display:flex;gap:7px}
+.dots span{width:17px;height:17px;border-radius:50% 45% 55% 50%;border:2px solid var(--graphite)}
+.dots span.on{background:var(--orange)}
+.task{font-family:var(--display);font-weight:400;font-size:1.65rem;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;text-wrap:balance}
+.tag{font-family:var(--hand);font-size:1rem;padding:0 10px;border-radius:var(--wob1);background:var(--orange-soft);border:2px solid var(--orange);transform:rotate(-2deg)}
+.eqrow{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:4px 0}
+.frac{display:inline-flex;flex-direction:column;align-items:center;font-family:var(--display);font-size:2.9rem;line-height:1.05;font-variant-numeric:tabular-nums}
+.frac .bar{width:100%;min-width:52px;height:4px;background:var(--graphite);border-radius:3px 1px 4px 2px;margin:4px 0;transform:rotate(-1.5deg)}
+.frac input{width:3ch;font:inherit;font-size:2.5rem;text-align:center;border:2.5px dashed var(--pencil);border-radius:var(--wob1);background:var(--sheet);color:var(--graphite);padding:0 2px}
+.frac input[readonly]{border-color:transparent;background:transparent}
+.frac input:focus{outline:none;border-style:solid;border-color:var(--orange);background:var(--yellow-soft)}
+.eq{display:inline-flex;flex-direction:column;align-items:center;font-family:var(--display)}
+.eq .k{min-width:46px;text-align:center;font-size:1.6rem;border-radius:var(--wob2);padding:0 8px;color:var(--orange);min-height:2rem;background:var(--yellow-soft)}
+.eq .k.empty{color:var(--pencil);background:transparent;border:2px dashed var(--pencil)}
+.eq .sign{font-size:3rem;line-height:1}
+.fields{margin:0;text-align:center;font-size:1.12rem;padding:6px 12px;border-top:2px dashed var(--grid);border-bottom:2px dashed var(--grid)}
+.fields strong{color:var(--orange);font-weight:400;font-size:1.25rem}
+.pick{display:flex;flex-direction:column;gap:8px;align-items:center}
+.pick p{margin:0;color:var(--pencil);text-align:center}
+.kbtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.kbtns button{font-family:var(--display);font-size:1.6rem;min-width:56px;padding:2px 10px;border:2.5px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;border-radius:var(--wob1)}
+.kbtns button:nth-child(odd){border-radius:var(--wob2)}
+.kbtns button[aria-pressed="true"]{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite);transform:rotate(-2deg)}
+.choice{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.choice button{font:inherit;font-size:1.15rem;padding:6px 18px;border:2.5px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;border-radius:var(--wob1)}
+.choice button[aria-pressed="true"]{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite)}
+figure{margin:0;padding:10px;border:2px dashed var(--pencil);border-radius:var(--wob1);background:var(--sheet)}
+figure svg{display:block;width:100%;height:auto}
+figcaption{text-align:center;color:var(--pencil);font-size:1rem;margin-top:6px}
+.hidden-pic{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;text-align:center;color:var(--pencil)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.btn{font:inherit;font-size:1.2rem;padding:6px 22px;border:2.5px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;border-radius:var(--wob2);box-shadow:2px 3px 0 var(--graphite)}
+.btn:active{transform:translate(2px,3px);box-shadow:none}
+.btn.primary{background:var(--orange);color:#fff}
+.btn.go{background:var(--yellow);color:var(--graphite)}
+button:focus-visible,summary:focus-visible{outline:3px dashed var(--focus);outline-offset:3px}
+.feedback{min-height:3rem;padding:8px 16px;display:flex;align-items:center;gap:10px;font-size:1.12rem;border:2px solid var(--graphite);border-radius:var(--wob1)}
+.feedback.ok{background:var(--yellow-soft);border-color:var(--graphite)}
+.feedback.ok::before{content:"✓";font-family:var(--display);font-size:1.8rem;color:var(--orange)}
+.feedback.bad{background:var(--orange-soft);border-color:var(--orange)}
+.feedback.bad::before{content:"?";font-family:var(--display);font-size:1.8rem;color:var(--orange)}
+.feedback.info{background:transparent;border-style:dashed;border-color:var(--pencil)}
+details{border:2px dashed var(--pencil);border-radius:var(--wob2);padding:6px 14px}
+summary{cursor:pointer;font-size:1.12rem}
+.starters{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:4px 24px;margin-top:6px}
+.starters h3{font-family:var(--display);font-weight:400;font-size:1.25rem;margin:4px 0;display:inline-block;background:linear-gradient(transparent 60%, var(--yellow-soft) 60%)}
+.starters ul{margin:0;padding-left:1.2em}
+.starters li{margin:2px 0}
+.rule{font-size:1.02rem;color:var(--pencil);margin:0}
+.rule strong{color:var(--graphite);font-weight:400;background:linear-gradient(transparent 60%, var(--yellow-soft) 60%)}
+footer{font-size:.85rem;color:var(--pencil);text-align:center}
+[hidden]{display:none !important}
+@media (max-width:480px){ h1{font-size:2rem} .frac{font-size:2.3rem} .card{padding:14px} }
+@media (prefers-reduced-motion: no-preference){ svg .fade{transition:opacity .45s ease} .btn,.kbtns button{transition:transform .1s} }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Erweitern und Kürzen üben</h1>
+      <p class="sub">Verfeinern und vergröbern am Rechteck, am Bruchstreifen und in der Streifentafel</p>
+    </div>
+    <div class="chips" aria-live="polite">
+      <span class="chip">Richtig: <b id="score">0</b></span>
+      <span class="chip">Serie: <b id="streak">0</b></span>
+    </div>
+  </header>
+
+  <div class="appswitch">
+    <div class="seg" role="group" aria-label="Modus" id="seg-app">
+      <button type="button" data-v="path" aria-pressed="true">Übungsweg</button>
+      <button type="button" data-v="free" aria-pressed="false">Freies Üben</button>
+    </div>
+  </div>
+
+  <section class="path" id="path" aria-labelledby="stage-title">
+    <ol class="stations" id="stations" aria-label="Stationen"></ol>
+    <div class="stage-head">
+      <h2 id="stage-title"></h2>
+      <div style="display:flex;align-items:center;gap:10px"><div class="dots" id="dots" aria-hidden="true"></div><span class="stage-prog" id="stage-prog"></span></div>
+    </div>
+    <p class="stage-intro" id="stage-intro"></p>
+  </section>
+
+  <section class="settings" id="settings" aria-label="Einstellungen" hidden>
+    <div class="group"><span id="lbl-mode">Üben</span>
+      <div class="seg" role="group" aria-labelledby="lbl-mode" id="seg-mode">
+        <button type="button" data-v="erw" aria-pressed="true">Erweitern</button>
+        <button type="button" data-v="kurz" aria-pressed="false">Kürzen</button>
+        <button type="button" data-v="mix" aria-pressed="false">Gemischt</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-type">Aufgabe</span>
+      <div class="seg" role="group" aria-labelledby="lbl-type" id="seg-type">
+        <button type="button" data-v="ziel" aria-pressed="true">Nenner gegeben</button>
+        <button type="button" data-v="faktor" aria-pressed="false">Zahl finden</button>
+        <button type="button" data-v="mal" aria-pressed="false">Erweitern oder Malnehmen?</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-view">Bild</span>
+      <div class="seg" role="group" aria-labelledby="lbl-view" id="seg-view">
+        <button type="button" data-v="rect" aria-pressed="true">Rechteck</button>
+        <button type="button" data-v="strip" aria-pressed="false">Bruchstreifen</button>
+        <button type="button" data-v="tafel" aria-pressed="false">Streifentafel</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-help">Bild-Hilfe</span>
+      <div class="seg" role="group" aria-labelledby="lbl-help" id="seg-help">
+        <button type="button" data-v="sofort" aria-pressed="true">sofort</button>
+        <button type="button" data-v="kopf" aria-pressed="false">erst im Kopf</button>
+        <button type="button" data-v="aus" aria-pressed="false">aus</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-lvl">Stufe</span>
+      <div class="seg" role="group" aria-labelledby="lbl-lvl" id="seg-lvl">
+        <button type="button" data-v="1" aria-pressed="true">1</button>
+        <button type="button" data-v="2" aria-pressed="false">2</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="task">
+    <p class="task" id="task"></p>
+
+    <div class="eqrow" id="eqrow">
+      <div class="frac" aria-label="Ausgangsbruch"><span id="a"></span><span class="bar"></span><span id="b"></span></div>
+      <div class="eq" aria-label="Gleichheitszeichen mit Zahl darüber">
+        <span class="k empty" id="kshow">?</span>
+        <span class="sign">=</span>
+      </div>
+      <div class="frac">
+        <input id="num" inputmode="numeric" autocomplete="off" aria-label="Neuer Zähler">
+        <span class="bar"></span>
+        <input id="den" inputmode="numeric" autocomplete="off" aria-label="Neuer Nenner">
+      </div>
+    </div>
+
+    <p class="fields" id="fields"></p>
+
+    <div class="pick" id="pick">
+      <p id="pickq"></p>
+      <div class="kbtns" id="kbtns" role="group" aria-labelledby="pickq"></div>
+    </div>
+
+    <div class="choice" id="choice" hidden role="group" aria-label="Welches Bild zeigt das Erweitern?">
+      <button type="button" data-v="A" aria-pressed="false">Bild A zeigt Erweitern</button>
+      <button type="button" data-v="B" aria-pressed="false">Bild B zeigt Erweitern</button>
+    </div>
+
+    <figure id="fig">
+      <div id="picwrap"><svg id="pic" viewBox="0 0 600 270" role="img" aria-labelledby="piccap"></svg></div>
+      <div class="hidden-pic" id="hiddenpic" hidden>
+        <span>Stell dir den Bruch zuerst im Kopf vor. Wie sieht der gleich große Anteil aus?</span>
+        <button type="button" class="btn" id="reveal">Im Bild kontrollieren</button>
+      </div>
+      <figcaption id="piccap"></figcaption>
+    </figure>
+
+    <div class="actions">
+      <button type="button" class="btn primary" id="check">Prüfen</button>
+      <button type="button" class="btn" id="hint">Tipp</button>
+      <button type="button" class="btn" id="next">Neue Aufgabe</button>
+    </div>
+
+    <div class="feedback info" id="fb" role="status" aria-live="polite"></div>
+
+    <details id="starters">
+      <summary>Satzbausteine zum Erklären</summary>
+      <div class="starters">
+        <div>
+          <h3>Wenn ich feiner einteile (erweitern)</h3>
+          <ul>
+            <li>Aus einem Feld werden … kleinere Felder.</li>
+            <li>Teil und Ganzes werden jeweils in … Felder eingeteilt.</li>
+            <li>Die Anzahl der Felder wird ver…facht.</li>
+            <li>Zähler und Nenner werden mit … multipliziert.</li>
+            <li>… ist genauso groß wie … / ist gleichwertig zu …</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Wenn ich gröber einteile (kürzen)</h3>
+          <ul>
+            <li>Je … kleinere Felder werden zu einem Feld zusammengefasst.</li>
+            <li>Die Felder werden größer.</li>
+            <li>Insgesamt sind es jetzt … gröbere Felder.</li>
+            <li>Zähler und Nenner werden durch … dividiert.</li>
+            <li>Der Anteil bleibt gleich groß.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <p class="rule"><strong>Erweitern = feiner einteilen:</strong> Jedes Feld wird in gleich viele kleinere Felder geteilt. Zähler und Nenner werden mit derselben Zahl malgenommen. <strong>Kürzen = gröber einteilen:</strong> Gleich viele Felder werden zu einem größeren Feld zusammengefasst. Zähler und Nenner werden durch dieselbe Zahl geteilt. Teil und Ganzes ändern sich nicht, der Anteil bleibt gleich groß.</p>
+  </section>
+
+  <footer>Impulse nach „Mathe sicher können“, Baustein B2 Gleichwertige Brüche (Schink, Pöhler-Friedrich, Prediger &amp; Wessel 2026), CC BY-NC-SA 4.0, mathe-sicher-koennen.dzlm.de</footer>
+</main>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const STAGES = [
+    {t:'Verfeinern ansehen', i:'Das Rechteck wird feiner eingeteilt. Mit welcher Zahl wurde erweitert? Wähle die Zahl über dem Gleichheitszeichen.', mode:'erw', type:'faktor', view:'rect', help:'sofort', lvl:1, goal:3},
+    {t:'Erweitern am Rechteck', i:'Erweitere auf den angegebenen Nenner. Wähle die Zahl und trage den neuen Bruch ein. Das Rechteck hilft dir.', mode:'erw', type:'ziel', view:'rect', help:'sofort', lvl:1, goal:3},
+    {t:'Erweitern am Bruchstreifen', i:'Jetzt mit Bruchstreifen. Achte darauf: Beide Streifen sind gleich lang, der orange Teil auch.', mode:'erw', type:'ziel', view:'strip', help:'sofort', lvl:1, goal:3},
+    {t:'Erweitern oder Malnehmen?', i:'Leonie sagt: „Erweitern und Malnehmen ist doch dasselbe!“ Prüfe das an den Bildern.', mode:'erw', type:'mal', view:'strip', help:'sofort', lvl:1, goal:2},
+    {t:'Vergröbern ansehen', i:'Jetzt umgekehrt: Felder werden zusammengefasst. Durch welche Zahl wurde gekürzt?', mode:'kurz', type:'faktor', view:'rect', help:'sofort', lvl:1, goal:3},
+    {t:'Kürzen am Bruchstreifen', i:'Kürze auf den angegebenen Nenner. Passt deine Zahl, werden die Felder zusammengefasst.', mode:'kurz', type:'ziel', view:'strip', help:'sofort', lvl:1, goal:3},
+    {t:'Streifentafel', i:'Erweitern und Kürzen gemischt. In der Streifentafel siehst du, wo der Teil genau auf einer Linie endet.', mode:'mix', type:'ziel', view:'tafel', help:'sofort', lvl:1, goal:4},
+    {t:'Erst im Kopf', i:'Stell dir den gleich großen Anteil zuerst im Kopf vor. Das Bild kommt erst, wenn du prüfst oder es aufdeckst.', mode:'mix', type:'ziel', view:'strip', help:'kopf', lvl:2, goal:4},
+    {t:'Profi-Station', i:'Ohne Bild und mit größeren Zahlen. Wenn du unsicher bist, hilft der Tipp.', mode:'mix', type:'ziel', view:'strip', help:'aus', lvl:2, goal:5}
+  ];
+  const path = {stage:0, unlocked:0, prog:STAGES.map(()=>0)};
+  try { const sv = JSON.parse(localStorage.getItem('bruch-uebungsweg')||'null'); if (sv && Array.isArray(sv.prog) && sv.prog.length === STAGES.length) Object.assign(path, sv); } catch(e){}
+  const savePath = () => { try { localStorage.setItem('bruch-uebungsweg', JSON.stringify(path)); } catch(e){} };
+  const st = {app:'path', mode:'erw', type:'ziel', view:'rect', help:'sofort', lvl:1, task:null, k:null, pickAB:null,
+              score:0, streak:0, hints:0, solved:false, revealed:false, failed:false};
+  const gcd = (x,y) => y ? gcd(y, x % y) : x;
+  const rnd = (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1));
+  const verbs = t => t.kind === 'erw'
+    ? {inf:'erweitern', du:'erweiterst', pp:'erweitert', fein:'verfeinern', mitd:'mit', rel:'mit der', op:'·'}
+    : {inf:'kürzen', du:'kürzt', pp:'gekürzt', fein:'vergröbern', mitd:'durch', rel:'durch die', op:':'};
+
+  // ---------- tasks ----------
+  function newTask(){
+    if (st.type === 'mal') return newMalTask();
+    const kind = st.mode === 'mix' ? (Math.random() < .5 ? 'erw' : 'kurz') : st.mode;
+    const maxB = st.lvl === 1 ? 5 : 8, maxK = st.lvl === 1 ? 3 : 5, maxD = st.lvl === 1 ? 15 : 32;
+    let a,b,k;
+    do { b = rnd(2,maxB); a = rnd(1,b-1); k = rnd(2,maxK); }
+    while (gcd(a,b) !== 1 || b*k > maxD || (st.task && st.task.a === a && st.task.b === b && st.task.k === k));
+    setTask(kind === 'erw'
+      ? {kind, a, b, k, from:[a,b], to:[a*k,b*k]}
+      : {kind, a, b, k, from:[a*k,b*k], to:[a,b]});
+  }
+  function newMalTask(){
+    let a,b,k;
+    do { b = rnd(3,6); a = rnd(1,b-1); k = rnd(2,3); } while (gcd(a,b) !== 1 || a*k > 3*b);
+    setTask({kind:'mal', a, b, k, from:[a,b], to:[a*k,b*k], erwIs: Math.random() < .5 ? 'A' : 'B'});
+  }
+  function setTask(t){
+    st.task = t; st.k = null; st.pickAB = null; st.hints = 0; st.solved = false; st.failed = false;
+    st.revealed = st.help === 'sofort';
+    $('num').value = ''; $('den').value = '';
+    render();
+    if (t.kind === 'mal') setFb('info','Leonie sagt: „Erweitern und Malnehmen ist doch dasselbe!“ Schau dir beide Bilder an. Welches zeigt das Erweitern?');
+    else if (st.type === 'faktor') setFb('info', `Wie wurde ${verbs(t).fein === 'verfeinern' ? 'verfeinert' : 'vergröbert'}? Wähle die Zahl über dem Gleichheitszeichen.`);
+    else setFb('info', st.help === 'kopf'
+      ? 'Stell dir zuerst im Kopf vor, wie der gleich große Anteil aussieht. Wähle dann die Zahl und trage den Bruch ein.'
+      : `Wähle die Zahl, ${verbs(t).rel} du ${verbs(t).du}, und trage den neuen Bruch ein.`);
+  }
+
+  // ---------- render ----------
+  function render(){
+    const t = st.task, mal = t.kind === 'mal';
+    const [c,d] = t.from, [n0,m0] = t.to;
+    $('eqrow').hidden = mal; $('pick').hidden = mal; $('fields').hidden = mal; $('choice').hidden = !mal;
+    if (mal){
+      $('task').innerHTML = `<span class="tag">Erweitern oder Malnehmen?</span> Beide Bilder starten mit ${t.a}/${t.b}. Welches Bild zeigt das Erweitern?`;
+      $('choice').querySelectorAll('button').forEach(bt => bt.setAttribute('aria-pressed', st.pickAB === bt.dataset.v ? 'true':'false'));
+    } else {
+      const v = verbs(t);
+      $('task').innerHTML = st.type === 'faktor'
+        ? `<span class="tag">${t.kind==='erw'?'Erweitern':'Kürzen'}</span> Mit welcher Zahl wurde ${t.kind==='erw'?'erweitert':'gekürzt'}?`
+        : `<span class="tag">${t.kind==='erw'?'Erweitern':'Kürzen'}</span> ${t.kind==='erw'?'Erweitere':'Kürze'} auf den Nenner ${m0}.`;
+      $('a').textContent = c; $('b').textContent = d;
+      const ro = st.type === 'faktor';
+      $('num').readOnly = ro; $('den').readOnly = ro;
+      if (ro){ $('num').value = n0; $('den').value = m0; }
+      $('pickq').textContent = st.type === 'faktor'
+        ? (t.kind === 'erw' ? 'Mit welcher Zahl wurde erweitert? Probiere aus: Wann hat das Ganze '+m0+' Felder?' : 'Durch welche Zahl wurde gekürzt? Probiere aus: Wann hat das Ganze '+m0+' Felder?')
+        : (t.kind === 'erw' ? 'Mit welcher Zahl erweiterst du? Die Zahl kommt über das Gleichheitszeichen.' : 'Durch welche Zahl kürzt du? Die Zahl kommt über das Gleichheitszeichen.');
+      const ks = $('kshow'); ks.textContent = st.k || '?'; ks.classList.toggle('empty', !st.k);
+      const box = $('kbtns'); box.innerHTML = '';
+      const maxK = st.lvl === 1 ? 4 : 6;
+      for (let k = 2; k <= maxK; k++){
+        const bt = document.createElement('button');
+        bt.type = 'button'; bt.textContent = k;
+        bt.setAttribute('aria-pressed', st.k === k ? 'true' : 'false');
+        bt.setAttribute('aria-label', v.mitd + ' ' + k);
+        bt.addEventListener('click', () => { st.k = k; render(); });
+        box.appendChild(bt);
+      }
+      // Felder-Satz: Teil und Ganzes in Feldern
+      let fs;
+      if (t.kind === 'erw'){
+        fs = st.k
+          ? `Teil: <strong>${c}</strong> von <strong>${d}</strong> Feldern. Jedes Feld wird in <strong>${st.k}</strong> kleinere Felder geteilt → ${c} · ${st.k} von ${d} · ${st.k} Feldern.`
+          : `Teil: <strong>${c}</strong> von <strong>${d}</strong> Feldern → ? von ${st.type==='faktor'?m0:m0} Feldern.`;
+      } else {
+        fs = st.k
+          ? `Teil: <strong>${c}</strong> von <strong>${d}</strong> Feldern. Je <strong>${st.k}</strong> Felder werden zu einem großen Feld zusammengefasst → ${c} : ${st.k} von ${d} : ${st.k} Feldern.`
+          : `Teil: <strong>${c}</strong> von <strong>${d}</strong> Feldern → ? von ${m0} Feldern.`;
+      }
+      $('fields').innerHTML = fs;
+    }
+    const showPic = st.help !== 'aus';
+    $('fig').hidden = !showPic;
+    const hide = st.help === 'kopf' && !st.revealed && !mal;
+    $('picwrap').hidden = hide; $('hiddenpic').hidden = !hide;
+    if (hide) $('piccap').textContent = '';
+    else draw();
+  }
+
+  // ---------- drawing helpers ----------
+  function R(x,y,w,h,fill,stroke,sw,extra){ return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="${stroke||'none'}" stroke-width="${sw||0}" ${extra||''}/>`; }
+  function L(x1,y1,x2,y2,w,op,dash,col){ return `<line class="fade" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col||'var(--graphite)'}" stroke-width="${w}" opacity="${op==null?1:op}" ${dash?`stroke-dasharray="${dash}"`:''}/>`; }
+  function T(x,y,s,size,anchor,weight){ return `<text x="${x}" y="${y}" fill="var(--graphite)" font-family="Patrick Hand, Comic Sans MS, cursive" font-size="${size||17}" font-weight="${weight||400}" text-anchor="${anchor||'middle'}">${s}</text>`; }
+  function strip(X,y,W,H,parts,colored,boldEvery){
+    let s = R(X,y,W,H,'var(--sheet)') + R(X,y,W*colored/parts,H,'url(#hatch)');
+    for (let i=1;i<parts;i++){ const bold = boldEvery && i % boldEvery === 0; s += L(X+W*i/parts,y,X+W*i/parts,y+H,bold?4:2); }
+    return s + R(X,y,W,H,'none','var(--graphite)',3.5,'rx="3"');
+  }
+  const F = n => n === 1 ? '1 Feld' : n + ' Felder';
+  function setVB(h){ $('pic').setAttribute('viewBox', `0 0 600 ${h}`); }
+
+  const DEFS = '<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(40)"><rect width="9" height="9" fill="var(--orange-soft)"/><line x1="2" y1="0" x2="2" y2="9" stroke="var(--orange)" stroke-width="4.5"/></pattern>'
+    + '<filter id="pencil" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3.2"/></filter></defs>';
+  function sketch(s){
+    const texts = s.match(/<text[\s\S]*?<\/text>/g) || [];
+    return DEFS + '<g filter="url(#pencil)">' + s.replace(/<text[\s\S]*?<\/text>/g,'') + '</g>' + texts.join('');
+  }
+  function draw(){
+    const t = st.task, svg = $('pic');
+    if (t.kind === 'mal'){ svg.innerHTML = sketch(drawMal(t)); return; }
+    if (st.view === 'tafel'){ svg.innerHTML = sketch(drawTafel(t)); return; }
+    setVB(270);
+    if (st.view === 'rect') svg.innerHTML = sketch(t.kind === 'erw' ? drawRectErw(t) : drawRectKurz(t));
+    else svg.innerHTML = sketch(drawStrips(t));
+  }
+
+  function drawRectErw(t){
+    const X=110, Y=12, W=380, H=210, a=t.a, b=t.b, k=st.k;
+    let s = R(X,Y,W,H,'var(--sheet)') + R(X,Y,W*a/b,H,'url(#hatch)');
+    if (k) for (let r=1;r<k;r++) s += L(X,Y+H*r/k,X+W,Y+H*r/k,2,1,'7 5');
+    for (let c=1;c<b;c++) s += L(X+W*c/b,Y,X+W*c/b,Y+H,3.5);
+    s += R(X,Y,W,H,'none','var(--graphite)',5,'rx="3"');
+    s += T(300,256, k ? `Feiner eingeteilt: Teil ${F(a*k)}, Ganzes ${F(b*k)}` : `Teil ${F(a)}, Ganzes ${F(b)}`);
+    $('piccap').textContent = k ? 'Die gestrichelten Linien teilen jedes Feld. Teil und Ganzes bleiben gleich groß, nur die Felder werden kleiner.' : 'Wähle eine Zahl. Dann siehst du die feinere Einteilung.';
+    return s;
+  }
+  function drawRectKurz(t){
+    const X=110, Y=12, W=380, H=210, a=t.a, b=t.b, K=t.k, k=st.k, ok = k === K;
+    const [c,d] = t.from;
+    let s = R(X,Y,W,H,'var(--sheet)') + R(X,Y,W*a/b,H,'url(#hatch)');
+    for (let r=1;r<K;r++) s += L(X,Y+H*r/K,X+W,Y+H*r/K,2.5, ok ? 0.12 : 1);
+    for (let cc=1;cc<b;cc++) s += L(X+W*cc/b,Y,X+W*cc/b,Y+H, ok ? 4 : 2.5);
+    s += R(X,Y,W,H,'none','var(--graphite)',5,'rx="3"');
+    let cap;
+    if (!k) cap = `Teil ${F(c)}, Ganzes ${F(d)}`;
+    else if (ok) cap = `Gröber eingeteilt: Teil ${F(a)}, Ganzes ${F(b)}`;
+    else if (d % k || c % k) cap = `${d % k ? 'Das Ganze ('+d+' Felder)' : 'Der Teil ('+c+' Felder)'} lässt sich nicht in Gruppen zu ${k} teilen`;
+    else cap = `Durch ${k}: ${d/k} Felder. Gesucht sind ${b} Felder.`;
+    s += T(300,256,cap);
+    $('piccap').textContent = ok ? 'Die blassen Linien sind weggefallen: Je '+k+' Felder sind zu einem großen Feld zusammengefasst.' : 'Wähle eine Zahl. Passt sie, werden Felder zusammengefasst.';
+    return s;
+  }
+  function drawStrips(t){
+    const k = st.k, [c,d] = t.from;
+    let s = T(40,26,`${c}/${d}: Teil ${c} von ${d} Feldern`,17,'start');
+    let ok=false, nP, nC;
+    if (t.kind === 'erw'){ s += strip(40,36,520,62,d,c,0); if (k){ ok=true; nP=d*k; nC=c*k; } }
+    else { const fits = k && d%k===0 && c%k===0; s += strip(40,36,520,62,d,c,fits?k:0); if (fits){ ok=true; nP=d/k; nC=c/k; } }
+    if (ok){
+      s += T(40,148,`${nC}/${nP}: Teil ${nC} von ${nP} Feldern`,17,'start');
+      s += t.kind === 'erw' ? strip(40,158,520,62,nP,nC,k) : strip(40,158,520,62,nP,nC,0);
+      s += L(40+520*c/d,100,40+520*c/d,156,2,0.8,'4 4');
+    } else {
+      s += R(40,158,520,62,'none','var(--pencil)',2,'stroke-dasharray="8 6" rx="3"');
+      s += T(300,195, !k ? 'Wähle eine Zahl.' : `In ${k}er-Gruppen passt der Streifen nicht.`, 17);
+    }
+    s += T(300,256, ok ? 'Beide Streifen sind gleich lang, der orange Teil ist gleich lang.' : (t.kind==='erw' ? 'Unten erscheint der feiner eingeteilte Streifen.' : 'Unten erscheint der gröber eingeteilte Streifen.'));
+    $('piccap').textContent = t.kind === 'erw'
+      ? 'Verfeinern: Jedes Feld wird in gleich viele kleinere Felder geteilt.'
+      : 'Vergröbern: Gleich viele Felder werden zu einem größeren Feld zusammengefasst.';
+    return s;
+  }
+  // Streifentafel: viele Streifen untereinander. Wo der Teil genau auf einer Linie endet, gibt es einen gleichwertigen Bruch.
+  function drawTafel(t){
+    const [c,d] = t.from, [n0,m0] = t.to, v = c/d;
+    const set = new Set([1,2,3,4,5,6,8,9,10,12]); set.add(d); set.add(m0);
+    const rows = [...set].filter(n => n <= 32).sort((x,y) => x-y);
+    const X=88, W=440, H=20, G=6, top=10;
+    let s = '';
+    rows.forEach((n,i) => {
+      const y = top + i*(H+G), fit = Math.abs(v*n - Math.round(v*n)) < 1e-9, key = n === d || n === m0;
+      s += R(X,y,W,H,'var(--sheet)');
+      if (fit) s += R(X,y,W*v,H,'url(#hatch)', null, 0, key ? '' : 'opacity="0.6"');
+      for (let j=1;j<n;j++) s += L(X+W*j/n,y,X+W*j/n,y+H, n>16?1:1.5);
+      s += R(X,y,W,H,'none','var(--graphite)', key ? 3 : 1.5);
+      s += T(X-10,y+15, n===1 ? '1 Ganzes' : `${n}-tel`, 14, 'end', key ? 700 : 400);
+      const hideAns = n === m0 && n !== d && st.type === 'ziel' && !st.solved;
+      if (fit) s += T(X+W+10,y+15, hideAns ? `?/${n}` : `${Math.round(v*n)}/${n}`, 14, 'start', key ? 700 : 400);
+    });
+    const yEnd = top + rows.length*(H+G);
+    s += L(X+W*v, top-6, X+W*v, yEnd, 3, 1, '6 4', 'var(--orange)');
+    setVB(yEnd + 10);
+    $('piccap').textContent = `Die orange Linie zeigt ${c}/${d}. Wo der Teil genau auf einer Linie endet, findest du einen gleichwertigen Bruch. Die dick umrandeten Streifen gehören zur Aufgabe.`;
+    return s;
+  }
+  // Erweitern oder Malnehmen?
+  function drawMal(t){
+    const {a,b,k} = t, U = Math.max(1, Math.ceil(a*k/b)), X=40, W=520, uw = W/U, H=32;
+    function block(y, label, which){
+      let s = T(X,y,`Bild ${label}`,17,'start',700);
+      // oben: Ausgangsbruch, ein Ganzes lang
+      s += strip(X,y+10,uw,H,b,a,0) + T(X+uw+10,y+10+22,`${a}/${b}`,15,'start');
+      if (which === 'erw'){
+        s += strip(X,y+52,uw,H,b*k,a*k,k) + T(X+uw+10,y+52+22,`${a*k}/${b*k}`,15,'start');
+      } else {
+        // Malnehmen: der Teil ${k}-mal hintereinander, über mehrere Ganze
+        for (let u=0; u<U; u++) s += R(X+u*uw,y+52,uw,H,'var(--sheet)');
+        s += R(X,y+52,uw*a*k/b,H,'url(#hatch)');
+        for (let u=0; u<U; u++){
+          for (let j=1;j<b;j++) s += L(X+u*uw+uw*j/b,y+52,X+u*uw+uw*j/b,y+52+H,1.5);
+          s += R(X+u*uw,y+52,uw,H,'none','var(--graphite)',3);
+        }
+        if (U === 1) s += T(X+uw+10,y+52+22,`${a*k}/${b}`,15,'start');
+        else s += T(X+W,y+52+H+18,`${a*k}/${b}`,15,'end');
+      }
+      return s;
+    }
+    const first = t.erwIs === 'A' ? 'erw' : 'mal', second = first === 'erw' ? 'mal' : 'erw';
+    setVB(250);
+    let s = block(18,'A',first) + block(140,'B',second);
+    $('piccap').textContent = 'In beiden Bildern ist oben der Ausgangsbruch. Unten siehst du, was danach passiert. Achte darauf, wie lang der orange Teil ist.';
+    return s;
+  }
+
+  // ---------- feedback / checking ----------
+  function setFb(kind,msg){ const f=$('fb'); f.className='feedback '+kind; f.textContent=msg; }
+  function win(msg){
+    if (!st.solved){
+      st.score++; if (!st.failed) st.streak++; st.solved = true;
+      if (st.app === 'path'){
+        const g = STAGES[path.stage].goal;
+        if (path.prog[path.stage] < g) path.prog[path.stage]++;
+        if (path.prog[path.stage] >= g){
+          path.unlocked = Math.max(path.unlocked, Math.min(path.stage+1, STAGES.length-1));
+          msg += path.stage < STAGES.length-1 ? ' Station geschafft! Weiter geht es mit der nächsten Station.' : ' Du hast den ganzen Übungsweg geschafft!';
+        }
+        savePath(); renderPath();
+      }
+    }
+    $('score').textContent = st.score; $('streak').textContent = st.streak;
+    st.revealed = true; render(); setFb('ok', msg); $('next').focus();
+  }
+  function fail(msg){ st.failed = true; st.streak = 0; $('streak').textContent = 0; setFb('bad', msg); }
+
+  function check(){
+    const t = st.task;
+    if (t.kind === 'mal') return checkMal();
+    const v = verbs(t), [c,d] = t.from, [n0,m0] = t.to;
+    if (st.help === 'kopf' && !st.revealed){ st.revealed = true; render(); }
+    if (!st.k){ setFb('bad', `Wähle zuerst die Zahl, ${v.rel} du ${v.du}. Sie kommt über das Gleichheitszeichen.`); return; }
+    if (st.k !== t.k){
+      if (t.kind === 'erw') return fail(`Mit ${st.k} wird das Ganze in ${d} · ${st.k} = ${d*st.k} Felder eingeteilt. Gesucht sind ${m0} Felder.`);
+      if (d % st.k || c % st.k) return fail(`Durch ${st.k} kann man nicht kürzen: ${d % st.k ? 'Die '+d+' Felder des Ganzen' : 'Die '+c+' Felder des Teils'} lassen sich nicht in ${st.k}er-Gruppen zusammenfassen.`);
+      return fail(`Durch ${st.k} werden es ${d} : ${st.k} = ${d/st.k} Felder. Gesucht sind ${m0} Felder.`);
+    }
+    if (st.type === 'faktor') return win(`Richtig! ${c}/${d} wurde ${v.mitd} ${st.k} ${v.pp}: ${t.kind==='erw' ? 'Aus jedem Feld werden '+st.k+' kleinere Felder.' : 'Je '+st.k+' Felder werden zu einem großen Feld.'}`);
+    const n = parseInt($('num').value,10), m = parseInt($('den').value,10);
+    if (isNaN(n) || isNaN(m)) return setFb('bad','Trage Zähler und Nenner in die beiden Kästchen ein.');
+    if (n === n0 && m === m0) return win(`Richtig! ${c}/${d} und ${n0}/${m0} sind gleichwertig: Teil und Ganzes sind gleich groß, nur die Einteilung ist ${t.kind==='erw'?'feiner':'gröber'}.`);
+    // typische Fehler (MSK: Jonas rechnet additiv)
+    if (n !== c && n - c === m - d) return fail(t.kind === 'erw'
+      ? `Du hast zu Zähler und Nenner dieselbe Zahl addiert. Beim Verfeinern wird aber jedes Feld geteilt: Zähler und Nenner werden mit ${st.k} malgenommen.`
+      : `Du hast von Zähler und Nenner dieselbe Zahl abgezogen. Beim Vergröbern werden aber Felder zusammengefasst: Zähler und Nenner werden durch ${st.k} geteilt.`);
+    if (t.kind === 'erw' && n === c*st.k && m === d) return fail(`Du hast nur den Zähler malgenommen. Dann wird der Teil ${st.k}-mal so groß, das ist Malnehmen und nicht Erweitern. Auch das Ganze wird feiner eingeteilt: Nenner mal ${st.k}.`);
+    if (m !== m0) return fail(t.kind === 'erw' ? `Der Nenner stimmt noch nicht. Das Ganze hat ${d} · ${st.k} Felder.` : `Der Nenner stimmt noch nicht. Das Ganze hat ${d} : ${st.k} Felder.`);
+    if (n === c) return fail(t.kind === 'erw' ? `Den Zähler musst du auch mit ${st.k} malnehmen: Auch die Felder des Teils werden geteilt.` : `Den Zähler musst du auch durch ${st.k} teilen: Auch die Felder des Teils werden zusammengefasst.`);
+    return fail(t.kind === 'erw' ? `Der Zähler stimmt noch nicht. Der Teil hat ${c} · ${st.k} Felder.` : `Der Zähler stimmt noch nicht. Der Teil hat ${c} : ${st.k} Felder.`);
+  }
+  function checkMal(){
+    const t = st.task;
+    if (!st.pickAB) return setFb('bad','Wähle zuerst: Bild A oder Bild B?');
+    const other = t.erwIs === 'A' ? 'B' : 'A';
+    if (st.pickAB === t.erwIs) return win(`Richtig! In Bild ${t.erwIs} bleibt der orange Teil gleich lang: ${t.a}/${t.b} = ${t.a*t.k}/${t.b*t.k}. In Bild ${other} wird der Teil ${t.k}-mal so lang: ${t.a}/${t.b} · ${t.k} = ${t.a*t.k}/${t.b}. Erkläre Leonie den Unterschied mit den Satzbausteinen.`);
+    fail(`Schau noch einmal genau hin: In Bild ${st.pickAB} ist der orange Teil am Ende ${t.k}-mal so lang wie vorher. Beim Erweitern bleibt der Teil gleich lang, nur die Felder werden kleiner.`);
+  }
+
+  function hint(){
+    const t = st.task; st.hints++;
+    if (t.kind === 'mal') return setFb('info', st.hints === 1 ? 'Tipp: Vergleiche die Länge des orangen Teils oben und unten.' : 'Tipp: Beim Erweitern wird nur feiner eingeteilt. Teil und Ganzes bleiben genauso lang.');
+    const [c,d] = t.from, m0 = t.to[1];
+    if (st.hints === 1) setFb('info', t.kind === 'erw'
+      ? `Tipp: Stell dir den ${d}er-Streifen vor. In wie viele kleinere Felder musst du jedes Feld teilen, damit es ${m0} Felder werden?`
+      : `Tipp: Stell dir den ${d}er-Streifen vor. Wie viele Felder musst du jeweils zusammenfassen, damit es ${m0} Felder werden?`);
+    else setFb('info', t.kind === 'erw'
+      ? `Tipp: ${d} · ${t.k} = ${m0}. Also erweiterst du mit ${t.k}: Zähler und Nenner mal ${t.k}.`
+      : `Tipp: ${d} : ${t.k} = ${m0}. Also kürzt du durch ${t.k}: Zähler und Nenner durch ${t.k}.`);
+  }
+
+  // ---------- wiring ----------
+  function seg(id, key, cast){
+    $(id).querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => {
+      $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === bt ? 'true' : 'false'));
+      st[key] = cast ? cast(bt.dataset.v) : bt.dataset.v;
+      if (key === 'view') render();
+      else if (key === 'help'){ st.revealed = st.help === 'sofort' || st.solved; render(); }
+      else newTask();
+    }));
+  }
+  seg('seg-mode','mode'); seg('seg-type','type'); seg('seg-view','view'); seg('seg-help','help'); seg('seg-lvl','lvl',Number);
+  $('choice').querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => { st.pickAB = bt.dataset.v; render(); }));
+  $('reveal').addEventListener('click', () => { st.revealed = true; render(); });
+  $('check').addEventListener('click', check);
+  $('hint').addEventListener('click', hint);
+  $('next').addEventListener('click', () => {
+    if (st.app === 'path' && path.prog[path.stage] >= STAGES[path.stage].goal && path.stage < STAGES.length-1){ goStage(path.stage+1); return; }
+    newTask();
+  });
+  function applyStage(){
+    const S = STAGES[path.stage];
+    Object.assign(st, {mode:S.mode, type:S.type, view:S.view, help:S.help, lvl:S.lvl});
+  }
+  function goStage(i){ path.stage = i; savePath(); applyStage(); renderPath(); newTask(); }
+  function renderPath(){
+    const ol = $('stations'); ol.innerHTML = '';
+    STAGES.forEach((S,i) => {
+      const li = document.createElement('li'), bt = document.createElement('button');
+      bt.type = 'button'; bt.textContent = i+1;
+      bt.setAttribute('aria-label', `Station ${i+1}: ${S.t}`); bt.title = S.t;
+      if (path.prog[i] >= S.goal) bt.classList.add('done');
+      if (i === path.stage) { bt.classList.add('current'); bt.setAttribute('aria-current','step'); }
+      bt.disabled = i > path.unlocked;
+      bt.addEventListener('click', () => goStage(i));
+      li.appendChild(bt); ol.appendChild(li);
+    });
+    const S = STAGES[path.stage], p = Math.min(path.prog[path.stage], S.goal);
+    $('stage-title').textContent = `Station ${path.stage+1}: ${S.t}`;
+    $('stage-intro').textContent = S.i;
+    $('stage-prog').textContent = `${p} von ${S.goal} richtig`;
+    $('dots').innerHTML = Array.from({length:S.goal},(_,j)=>`<span class="${j<p?'on':''}"></span>`).join('');
+    const done = p >= S.goal && path.stage < STAGES.length-1;
+    $('next').textContent = done ? `Weiter zu Station ${path.stage+2}` : 'Neue Aufgabe';
+    $('next').classList.toggle('go', done);
+  }
+  function setApp(a){
+    st.app = a;
+    $('path').hidden = a !== 'path'; $('settings').hidden = a === 'path';
+    if (a === 'path'){ applyStage(); renderPath(); }
+    else {
+      $('next').textContent = 'Neue Aufgabe'; $('next').classList.remove('go');
+      // Einstellungen im freien Modus zeigen den aktuellen Zustand
+      [['seg-mode','mode'],['seg-type','type'],['seg-view','view'],['seg-help','help'],['seg-lvl','lvl']].forEach(([id,key]) =>
+        $(id).querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v) === String(st[key]) ? 'true' : 'false')));
+    }
+    newTask();
+  }
+  $('seg-app').querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => {
+    $('seg-app').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === bt ? 'true' : 'false'));
+    setApp(bt.dataset.v);
+  }));
+  ['num','den'].forEach(id => $(id).addEventListener('keydown', e => { if (e.key === 'Enter') check(); }));
+
+  // Start im Übungsweg; ganz am Anfang die Aufgabe aus dem Merkkasten (1/4 = 3/12)
+  applyStage(); renderPath();
+  if (path.stage === 0 && path.prog[0] === 0) setTask({kind:'erw', a:1, b:4, k:3, from:[1,4], to:[3,12]});
+  else newTask();
+})();
+</script>
+</body>
+</html>
