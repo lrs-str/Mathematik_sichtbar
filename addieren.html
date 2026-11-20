@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brüche addieren üben</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+
+/* Layout: Karopapier als Grund, darauf Zettel (Stationen, Arbeitskarte) mit Bleistiftrahmen. Orange = Buntstift-Schraffur und Hauptaktion, Gelb = Textmarker für Auswahl und Erfolg. */
+:root{
+  --paper:#fbf8ef;
+  --grid:#d9e2ea;
+  --sheet:#fffdf7;
+  --graphite:#3b3a37;
+  --pencil:#6f6c66;
+  --orange:#ef7a1a;
+  --orange-soft:#ffe1c2;
+  --yellow:#ffd23f;
+  --yellow-soft:#fff3b0;
+  --focus:#ef7a1a;
+  --hand:"Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  --display:"Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  --wob1:255px 18px 225px 18px / 18px 225px 18px 255px;
+  --wob2:18px 225px 18px 255px / 255px 18px 225px 18px;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  color:var(--graphite);font-family:var(--hand);font-size:20px;line-height:1.45;
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:19px 19px;
+}
+main{max-width:900px;margin:0 auto;padding:22px 16px 32px;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:400;font-size:2.6rem;margin:0;line-height:1.05;text-wrap:balance;display:inline;
+   background:linear-gradient(transparent 55%, var(--yellow) 55%, var(--yellow) 88%, transparent 88%);padding:0 6px}
+.sub{margin:8px 0 0;color:var(--pencil);font-size:1.05rem}
+.chips{display:flex;gap:10px}
+.chip{background:var(--sheet);border:2px solid var(--graphite);border-radius:var(--wob1);padding:3px 14px;font-size:1.1rem;font-variant-numeric:tabular-nums;transform:rotate(-1.5deg)}
+.chip + .chip{transform:rotate(1.2deg)}
+.chip b{color:var(--orange);font-weight:400;font-size:1.25rem}
+.appswitch{display:flex;justify-content:center}
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px;max-width:100%}
+.seg button{font:inherit;font-size:1.02rem;border:2px solid var(--graphite);background:var(--sheet);color:var(--graphite);padding:3px 12px;cursor:pointer;border-radius:var(--wob1);white-space:nowrap}
+.seg button:nth-child(even){border-radius:var(--wob2)}
+.seg button[aria-pressed="true"]{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite)}
+.appswitch .seg button{font-size:1.2rem;padding:5px 22px}
+.settings{display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center;background:var(--sheet);border:2px solid var(--graphite);border-radius:var(--wob2);padding:12px 16px}
+.group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.group > span{color:var(--pencil);font-size:1rem}
+.path,.card{background:var(--sheet);border:2.5px solid var(--graphite);box-shadow:3px 4px 0 rgba(59,58,55,.85)}
+.path{border-radius:var(--wob1);padding:14px 20px;display:flex;flex-direction:column;gap:8px;transform:rotate(-.4deg)}
+.card{border-radius:var(--wob2);padding:22px;display:flex;flex-direction:column;gap:14px}
+.stations{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.stations button{font-family:var(--display);font-size:1.2rem;width:42px;height:42px;border-radius:50% 46% 52% 48% / 48% 52% 46% 50%;border:2px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;line-height:1}
+.stations button.done{background:var(--yellow)}
+.stations button.done::after{content:"✓";font-size:.75rem;margin-left:1px}
+.stations button.current{background:var(--orange);color:#fff;box-shadow:2px 3px 0 var(--graphite)}
+.stations button:disabled{border-style:dashed;color:var(--pencil);opacity:.6;cursor:not-allowed}
+.stage-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px}
+.stage-head h2{font-family:var(--display);font-weight:400;font-size:1.6rem;margin:0}
+.stage-prog{color:var(--pencil);font-variant-numeric:tabular-nums}
+.stage-intro{margin:0}
+.dots{display:flex;gap:7px}
+.dots span{width:17px;height:17px;border-radius:50% 45% 55% 50%;border:2px solid var(--graphite)}
+.dots span.on{background:var(--orange)}
+.task{font-family:var(--display);font-weight:400;font-size:1.65rem;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;text-wrap:balance}
+.tag{font-family:var(--hand);font-size:1rem;padding:0 10px;border-radius:var(--wob1);background:var(--orange-soft);border:2px solid var(--orange);transform:rotate(-2deg)}
+.eqrow{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:4px 0}
+.frac{display:inline-flex;flex-direction:column;align-items:center;font-family:var(--display);font-size:2.9rem;line-height:1.05;font-variant-numeric:tabular-nums}
+.frac .bar{width:100%;min-width:52px;height:4px;background:var(--graphite);border-radius:3px 1px 4px 2px;margin:4px 0;transform:rotate(-1.5deg)}
+.frac input{width:3ch;font:inherit;font-size:2.5rem;text-align:center;border:2.5px dashed var(--pencil);border-radius:var(--wob1);background:var(--sheet);color:var(--graphite);padding:0 2px}
+.frac input[readonly]{border-color:transparent;background:transparent}
+.frac input:focus{outline:none;border-style:solid;border-color:var(--orange);background:var(--yellow-soft)}
+.eq{display:inline-flex;flex-direction:column;align-items:center;font-family:var(--display)}
+.eq .k{min-width:46px;text-align:center;font-size:1.6rem;border-radius:var(--wob2);padding:0 8px;color:var(--orange);min-height:2rem;background:var(--yellow-soft)}
+.eq .k.empty{color:var(--pencil);background:transparent;border:2px dashed var(--pencil)}
+.eq .sign{font-size:3rem;line-height:1}
+.fields{margin:0;text-align:center;font-size:1.12rem;padding:6px 12px;border-top:2px dashed var(--grid);border-bottom:2px dashed var(--grid)}
+.fields strong{color:var(--orange);font-weight:400;font-size:1.25rem}
+.pick{display:flex;flex-direction:column;gap:8px;align-items:center}
+.pick p{margin:0;color:var(--pencil);text-align:center}
+.kbtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.kbtns button{font-family:var(--display);font-size:1.6rem;min-width:56px;padding:2px 10px;border:2.5px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;border-radius:var(--wob1)}
+.kbtns button:nth-child(odd){border-radius:var(--wob2)}
+.kbtns button[aria-pressed="true"]{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite);transform:rotate(-2deg)}
+.choice{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.choice button{font:inherit;font-size:1.15rem;padding:6px 18px;border:2.5px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;border-radius:var(--wob1)}
+.choice button[aria-pressed="true"]{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite)}
+figure{margin:0;padding:10px;border:2px dashed var(--pencil);border-radius:var(--wob1);background:var(--sheet)}
+figure svg{display:block;width:100%;height:auto}
+figcaption{text-align:center;color:var(--pencil);font-size:1rem;margin-top:6px}
+.hidden-pic{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;text-align:center;color:var(--pencil)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.btn{font:inherit;font-size:1.2rem;padding:6px 22px;border:2.5px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;border-radius:var(--wob2);box-shadow:2px 3px 0 var(--graphite)}
+.btn:active{transform:translate(2px,3px);box-shadow:none}
+.btn.primary{background:var(--orange);color:#fff}
+.btn.go{background:var(--yellow);color:var(--graphite)}
+button:focus-visible,summary:focus-visible{outline:3px dashed var(--focus);outline-offset:3px}
+.feedback{min-height:3rem;padding:8px 16px;display:flex;align-items:center;gap:10px;font-size:1.12rem;border:2px solid var(--graphite);border-radius:var(--wob1)}
+.feedback.ok{background:var(--yellow-soft);border-color:var(--graphite)}
+.feedback.ok::before{content:"✓";font-family:var(--display);font-size:1.8rem;color:var(--orange)}
+.feedback.bad{background:var(--orange-soft);border-color:var(--orange)}
+.feedback.bad::before{content:"?";font-family:var(--display);font-size:1.8rem;color:var(--orange)}
+.feedback.info{background:transparent;border-style:dashed;border-color:var(--pencil)}
+details{border:2px dashed var(--pencil);border-radius:var(--wob2);padding:6px 14px}
+summary{cursor:pointer;font-size:1.12rem}
+.starters{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:4px 24px;margin-top:6px}
+.starters h3{font-family:var(--display);font-weight:400;font-size:1.25rem;margin:4px 0;display:inline-block;background:linear-gradient(transparent 60%, var(--yellow-soft) 60%)}
+.starters ul{margin:0;padding-left:1.2em}
+.starters li{margin:2px 0}
+.rule{font-size:1.02rem;color:var(--pencil);margin:0}
+.rule strong{color:var(--graphite);font-weight:400;background:linear-gradient(transparent 60%, var(--yellow-soft) 60%)}
+footer{font-size:.85rem;color:var(--pencil);text-align:center}
+[hidden]{display:none !important}
+@media (max-width:480px){ h1{font-size:2rem} .frac{font-size:2.3rem} .card{padding:14px} }
+@media (prefers-reduced-motion: no-preference){ svg .fade{transition:opacity .45s ease} .btn,.kbtns button{transition:transform .1s} }
+
+/* Rechenweg in Schritten */
+.big{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.op{font-family:var(--display);font-size:2.6rem;line-height:1}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:8px 12px;border:2px dashed var(--grid);border-radius:var(--wob1)}
+.step.active{border:2.5px solid var(--orange);background:var(--yellow-soft)}
+.step.done{border-style:solid;border-color:var(--graphite)}
+.step.done .stepno::after{content:" ✓";color:var(--orange)}
+.stepno{font-family:var(--display);font-size:1.15rem;min-width:6.2em;color:var(--pencil)}
+.step .frac{font-size:2.1rem}
+.step .frac input{font-size:1.9rem}
+.step .eq .sign{font-size:2.3rem}
+.step .eq .k{font-size:1.3rem;min-height:1.6rem}
+.step .op{font-size:2.1rem}
+.nbox{width:3.2ch;font:inherit;font-family:var(--display);font-size:1.8rem;text-align:center;border:2.5px dashed var(--pencil);border-radius:var(--wob1);background:var(--sheet);color:var(--graphite)}
+.nbox:focus{outline:none;border-style:solid;border-color:var(--orange);background:var(--yellow-soft)}
+input[readonly]{border-color:transparent !important;background:transparent !important}
+.pair{display:flex;align-items:center;gap:10px}
+.gap{width:22px}
+.legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:1rem;color:var(--pencil);margin-top:4px}
+.sw{display:inline-block;width:18px;height:14px;border:2px solid var(--graphite);vertical-align:middle;margin-right:4px}
+.sw.o{background:repeating-linear-gradient(40deg,var(--orange) 0 4px,var(--orange-soft) 4px 9px)}
+.sw.y{background:repeating-linear-gradient(-40deg,#e0a800 0 3px,var(--yellow-soft) 3px 8px)}
+.sw.x{background:var(--sheet);position:relative}
+.sw.x::after{content:"✕";position:absolute;inset:-4px 0 0 2px;font-size:.8rem}
+.choice{flex-direction:column;align-items:stretch;max-width:640px;margin:0 auto}
+.choice button{text-align:left}
+
+/* Tipp hervorheben */
+.btn.tip-on{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite)}
+.feedback.tip{background:var(--yellow-soft);border:2.5px solid #e0a800;box-shadow:3px 4px 0 var(--yellow);font-size:1.15rem}
+.feedback.tip::before{content:"Tipp";font-family:var(--display);font-size:1.1rem;background:var(--yellow);border:2px solid var(--graphite);border-radius:var(--wob1);padding:0 10px;transform:rotate(-3deg);flex:none}
+.eq.below{flex-direction:column-reverse}
+
+/* Abschluss-Seite */
+.finish{background:var(--sheet);border:2.5px solid var(--graphite);border-radius:var(--wob1);box-shadow:3px 4px 0 rgba(59,58,55,.85);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.finish svg{width:min(260px,70%);height:auto}
+.finish h2{font-family:var(--display);font-weight:400;font-size:2.3rem;line-height:1.15;margin:0;text-wrap:balance}
+.finish h2 span{background:linear-gradient(transparent 58%, var(--yellow) 58%, var(--yellow) 90%, transparent 90%);-webkit-box-decoration-break:clone;box-decoration-break:clone;padding:0 6px}
+.finish p{margin:0;max-width:34em}
+.finish ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;text-align:left}
+.finish li::before{content:"✓ ";color:var(--orange)}
+@media (prefers-reduced-motion: no-preference){ .finish svg .star{transform-origin:130px 120px;animation:pop .6s ease-out} @keyframes pop{from{transform:scale(.6) rotate(-12deg)}to{transform:none}} }
+.backlink{align-self:flex-start;font-size:1rem;color:var(--graphite);text-decoration:none;border-bottom:2px dashed var(--pencil)}
+.backlink:hover{border-bottom-color:var(--orange)}
+</style>
+</head>
+<body>
+<main>
+  <a class="backlink" href="index.html">← Alle Übungen</a>
+  <header>
+    <div>
+      <h1>Brüche addieren üben</h1>
+      <p class="sub">Gemeinsamer Nenner, erweitern, addieren, kürzen: Schritt für Schritt am Bruchstreifen und am Beet</p>
+    </div>
+    <div class="chips" aria-live="polite">
+      <span class="chip">Richtig: <b id="score">0</b></span>
+      <span class="chip">Serie: <b id="streak">0</b></span>
+    </div>
+  </header>
+
+  <section class="finish" id="finish" hidden aria-labelledby="finish-title">
+    <svg viewBox="0 0 260 230" aria-hidden="true">
+      <defs>
+        <pattern id="fhatch" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(40)"><rect width="10" height="10" fill="var(--yellow-soft)"/><line x1="2" y1="0" x2="2" y2="10" stroke="var(--orange)" stroke-width="4"/></pattern>
+        <filter id="fpencil"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="4"/></filter>
+      </defs>
+      <g filter="url(#fpencil)">
+        <polygon class="star" points="130,14 157,84 232,88 173,134 194,206 130,165 66,206 87,134 28,88 103,84" fill="url(#fhatch)" stroke="var(--graphite)" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M18 40 l14 8 M240 36 l-14 10 M14 160 l16 -4 M246 156 l-16 -6" stroke="var(--orange)" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </svg>
+    <h2 id="finish-title"><span>Super, das klappt gut mit dem Addieren von Brüchen!</span></h2>
+    <p>Du hast alle 8 Stationen des Übungswegs geschafft.</p>
+    <ul>
+      <li>Zuerst suchst du einen gemeinsamen Nenner.</li>
+      <li>Dann erweiterst du beide Brüche.</li>
+      <li>Jetzt addierst du die Zähler. Der Nenner bleibt gleich.</li>
+      <li>Am Ende kürzt du, wenn es geht.</li>
+    </ul>
+    <div class="actions">
+      <button type="button" class="btn primary" id="finish-free">Weiter frei üben</button>
+      <button type="button" class="btn" id="finish-back">Zurück zum Übungsweg</button>
+      <button type="button" class="btn" id="finish-reset">Übungsweg neu starten</button>
+    </div>
+  </section>
+
+  <div class="appswitch">
+    <div class="seg" role="group" aria-label="Modus" id="seg-app">
+      <button type="button" data-v="path" aria-pressed="true">Übungsweg</button>
+      <button type="button" data-v="free" aria-pressed="false">Freies Üben</button>
+    </div>
+  </div>
+
+  <section class="path" id="path" aria-labelledby="stage-title">
+    <ol class="stations" id="stations" aria-label="Stationen"></ol>
+    <div class="stage-head">
+      <h2 id="stage-title"></h2>
+      <div style="display:flex;align-items:center;gap:10px"><div class="dots" id="dots" aria-hidden="true"></div><span class="stage-prog" id="stage-prog"></span></div>
+    </div>
+    <p class="stage-intro" id="stage-intro"></p>
+  </section>
+
+  <section class="settings" id="settings" aria-label="Einstellungen" hidden>
+    <div class="group"><span id="lbl-kind">Aufgabe</span>
+      <div class="seg" role="group" aria-labelledby="lbl-kind" id="seg-kind">
+        <button type="button" data-v="gleich" aria-pressed="false">Gleiche Nenner</button>
+        <button type="button" data-v="passt" aria-pressed="false">Ein Nenner passt</button>
+        <button type="button" data-v="versch" aria-pressed="true">Verschiedene Nenner</button>
+        <button type="button" data-v="mix" aria-pressed="false">Gemischt</button>
+        <button type="button" data-v="fehler" aria-pressed="false">Fehler finden</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-view">Bild</span>
+      <div class="seg" role="group" aria-labelledby="lbl-view" id="seg-view">
+        <button type="button" data-v="strip" aria-pressed="true">Bruchstreifen</button>
+        <button type="button" data-v="rect" aria-pressed="false">Beet-Rechteck</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-help">Bild-Hilfe</span>
+      <div class="seg" role="group" aria-labelledby="lbl-help" id="seg-help">
+        <button type="button" data-v="sofort" aria-pressed="true">sofort</button>
+        <button type="button" data-v="kopf" aria-pressed="false">erst im Kopf</button>
+        <button type="button" data-v="aus" aria-pressed="false">aus</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-kurz">Ergebnis kürzen</span>
+      <div class="seg" role="group" aria-labelledby="lbl-kurz" id="seg-kurz">
+        <button type="button" data-v="0" aria-pressed="true">nein</button>
+        <button type="button" data-v="1" aria-pressed="false">ja</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-lvl">Stufe</span>
+      <div class="seg" role="group" aria-labelledby="lbl-lvl" id="seg-lvl">
+        <button type="button" data-v="1" aria-pressed="true">1</button>
+        <button type="button" data-v="2" aria-pressed="false">2</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="task">
+    <p class="task" id="task"></p>
+    <div class="big" id="bigline"></div>
+
+    <div class="steps" id="steps">
+      <div class="step" id="s1">
+        <span class="stepno">Schritt 1</span>
+        <label for="nN">Gemeinsamer Nenner:</label>
+        <input class="nbox" id="nN" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="step" id="s2">
+        <span class="stepno">Schritt 2</span>
+        <span>Erweitern:</span>
+        <div class="pair" id="pairA"></div><div class="gap"></div><div class="pair" id="pairB"></div>
+      </div>
+      <div class="step" id="s3">
+        <span class="stepno">Schritt 3</span>
+        <span id="s3label">Addieren:</span>
+        <div class="pair" id="pairR"></div>
+      </div>
+      <div class="step" id="s4">
+        <span class="stepno">Schritt 4</span>
+        <span>Kürzen:</span>
+        <div class="pair" id="pairK"></div>
+      </div>
+    </div>
+
+    <div class="choice" id="choice" hidden role="group" aria-label="Was stimmt?"></div>
+
+    <figure id="fig">
+      <div id="picwrap"><svg id="pic" viewBox="0 0 600 300" role="img" aria-labelledby="piccap"></svg></div>
+      <div class="hidden-pic" id="hiddenpic" hidden>
+        <span>Stell dir die Aufgabe zuerst im Kopf vor. Wie groß werden die gemeinsamen Felder?</span>
+        <button type="button" class="btn" id="reveal">Im Bild kontrollieren</button>
+      </div>
+      <figcaption id="piccap"></figcaption>
+      <div class="legend" id="legend"></div>
+    </figure>
+
+    <div class="actions">
+      <button type="button" class="btn primary" id="check">Prüfen</button>
+      <button type="button" class="btn" id="hint">Tipp</button>
+      <button type="button" class="btn" id="next">Neue Aufgabe</button>
+    </div>
+
+    <div class="feedback info" id="fb" role="status" aria-live="polite"></div>
+
+    <details>
+      <summary>Satzbausteine zum Erklären</summary>
+      <div class="starters">
+        <div>
+          <h3>Mein Rechenweg</h3>
+          <ul>
+            <li>Zuerst suche ich einen gemeinsamen Nenner, weil die Felder gleich groß sein müssen.</li>
+            <li>… kommt in der Einmaleins-Reihe von … und von … vor.</li>
+            <li>Dann erweitere ich … mit … und … mit …</li>
+            <li>Jetzt sind alle Felder gleich groß, deshalb kann ich die Zähler addieren.</li>
+            <li>Der Nenner bleibt gleich, weil die Felder gleich groß bleiben.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Am Bild</h3>
+          <ul>
+            <li>Jedes Feld wird in … kleinere Felder geteilt.</li>
+            <li>Jetzt hat das Ganze … gleich große Felder.</li>
+            <li>Die orangen und die gelben Felder lege ich zusammen.</li>
+            <li>Das Ergebnis kann man (nicht) kürzen, weil …</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <p class="rule"><strong>So addierst du Brüche:</strong> 1. Gemeinsamen Nenner suchen. 2. Beide Brüche erweitern (die Zahl steht über dem Gleichheitszeichen). 3. Zähler addieren, der Nenner bleibt. 4. Wenn möglich kürzen (die Zahl steht unter dem Gleichheitszeichen). <strong>Niemals die Nenner addieren!</strong></p>
+  </section>
+
+  <footer>Gestaltung im Stil der Übungsseite „Erweitern und Kürzen üben“. Impulse nach „Mathe sicher können“ (DZLM), CC BY-NC-SA 4.0.</footer>
+</main>
+
+<script>
+(function(){
+  const OP = 'add';                       // 'add' oder 'sub'
+  const ADD = OP === 'add';
+  const SYM = ADD ? '+' : '−';
+  const $ = id => document.getElementById(id);
+  const gcd = (x,y) => y ? gcd(y, x % y) : x;
+  const lcm = (x,y) => x / gcd(x,y) * y;
+  const rnd = (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1));
+  const F = n => n === 1 ? '1 Feld' : n + ' Felder';
+
+  const STAGES = ADD ? [
+    {t:'Gleiche Nenner', i:'Die Felder sind schon gleich groß. Zähle die Felder zusammen. Der Nenner bleibt gleich.', kind:'gleich', view:'strip', help:'sofort', kurz:false, lvl:1, goal:3},
+    {t:'Ein Nenner passt schon', i:'Ein Nenner passt in den anderen. Dann musst du nur einen Bruch erweitern.', kind:'passt', view:'rect', help:'sofort', kurz:false, lvl:1, goal:3},
+    {t:'Verschiedene Nenner am Beet', i:'Wie beim Beet-Problem: Suche einen gemeinsamen Nenner, erweitere beide Brüche und addiere dann.', kind:'versch', view:'rect', help:'sofort', kurz:false, lvl:1, goal:3},
+    {t:'Verschiedene Nenner am Bruchstreifen', i:'Jetzt mit Bruchstreifen. Beide Streifen werden fein genug eingeteilt.', kind:'versch', view:'strip', help:'sofort', kurz:false, lvl:1, goal:3},
+    {t:'Fehler finden', i:'Max hat gerechnet. Stimmt sein Ergebnis? Schau dir die Streifen genau an.', kind:'fehler', view:'strip', help:'sofort', kurz:false, lvl:1, goal:2},
+    {t:'Ergebnis kürzen', i:'Rechne wie bisher. Kürze das Ergebnis am Ende so weit wie möglich.', kind:'mix', view:'strip', help:'sofort', kurz:true, lvl:1, goal:3},
+    {t:'Erst im Kopf', i:'Stell dir die gemeinsamen Felder zuerst im Kopf vor. Das Bild kommt erst, wenn du es aufdeckst oder fertig bist.', kind:'mix', view:'strip', help:'kopf', kurz:true, lvl:2, goal:4},
+    {t:'Profi-Station', i:'Ohne Bild und mit größeren Zahlen. Der Tipp hilft, wenn du nicht weiterkommst.', kind:'mix', view:'strip', help:'aus', kurz:true, lvl:2, goal:4}
+  ] : [
+    {t:'Gleiche Nenner', i:'Die Felder sind schon gleich groß. Nimm die Felder weg. Der Nenner bleibt gleich.', kind:'gleich', view:'strip', help:'sofort', kurz:false, lvl:1, goal:3},
+    {t:'Ein Nenner passt schon', i:'Ein Nenner passt in den anderen. Dann musst du nur einen Bruch erweitern.', kind:'passt', view:'rect', help:'sofort', kurz:false, lvl:1, goal:3},
+    {t:'Verschiedene Nenner am Beet', i:'Wie bei der Ernte im Beet: Suche einen gemeinsamen Nenner, erweitere beide Brüche und subtrahiere dann.', kind:'versch', view:'rect', help:'sofort', kurz:false, lvl:1, goal:3},
+    {t:'Verschiedene Nenner am Bruchstreifen', i:'Jetzt mit Bruchstreifen. Beide Streifen werden fein genug eingeteilt.', kind:'versch', view:'strip', help:'sofort', kurz:false, lvl:1, goal:3},
+    {t:'Fehler finden', i:'Mia hat gerechnet. Stimmt ihr Ergebnis? Schau dir die Streifen genau an.', kind:'fehler', view:'strip', help:'sofort', kurz:false, lvl:1, goal:2},
+    {t:'Ergebnis kürzen', i:'Rechne wie bisher. Kürze das Ergebnis am Ende so weit wie möglich.', kind:'mix', view:'strip', help:'sofort', kurz:true, lvl:1, goal:3},
+    {t:'Erst im Kopf', i:'Stell dir die gemeinsamen Felder zuerst im Kopf vor. Das Bild kommt erst, wenn du es aufdeckst oder fertig bist.', kind:'mix', view:'strip', help:'kopf', kurz:true, lvl:2, goal:4},
+    {t:'Profi-Station', i:'Ohne Bild und mit größeren Zahlen. Der Tipp hilft, wenn du nicht weiterkommst.', kind:'mix', view:'strip', help:'aus', kurz:true, lvl:2, goal:4}
+  ];
+  const KEY = 'bruch-weg-' + OP;
+  const path = {stage:0, unlocked:0, prog:STAGES.map(()=>0)};
+  try { const sv = JSON.parse(localStorage.getItem(KEY)||'null'); if (sv && Array.isArray(sv.prog) && sv.prog.length === STAGES.length) Object.assign(path, sv); } catch(e){}
+  const savePath = () => { try { localStorage.setItem(KEY, JSON.stringify(path)); } catch(e){} };
+
+  const FREE = {kind:'versch', view:'strip', help:'sofort', kurz:false, lvl:1};
+  const st = {app:'path', kind:'versch', view:'strip', help:'sofort', kurz:false, lvl:1,
+              task:null, step:1, N:null, pick:null, score:0, streak:0, hints:0, solved:false, failed:false, revealed:true};
+
+  // ---------- Aufgaben ----------
+  function okPair(a,b,c,d){
+    if (a < 1 || c < 1 || a >= b || c >= d) return false;
+    if (gcd(a,b) !== 1 || gcd(c,d) !== 1) return false;
+    return ADD ? a*d + c*b <= b*d : a*d > c*b;
+  }
+  function gen(kind){
+    const L = st.lvl;
+    for (let tries = 0; tries < 2000; tries++){
+      let a,b,c,d;
+      if (kind === 'gleich'){
+        b = rnd(3, L === 1 ? 10 : 12); d = b; a = rnd(1,b-1); c = rnd(1,b-1);
+        if (ADD ? a + c > b : a <= c) continue;
+        if (st.kurz && gcd(ADD ? a+c : a-c, b) === 1 && tries < 1500) continue;
+        return {kind, a,b,c,d};
+      }
+      if (kind === 'passt'){
+        const small = rnd(2, L === 1 ? 5 : 6), big = small * rnd(2, L === 1 ? 3 : 4);
+        if (Math.random() < .5){ b = small; d = big; } else { b = big; d = small; }
+      } else if (kind === 'versch'){
+        b = rnd(2, L === 1 ? 6 : 9); d = rnd(2, L === 1 ? 6 : 9);
+        if (b === d || b % d === 0 || d % b === 0 || lcm(b,d) > (L === 1 ? 30 : 60)) continue;
+      }
+      a = rnd(1,b-1); c = rnd(1,d-1);
+      if (!okPair(a,b,c,d)) continue;
+      const N = lcm(b,d), r = ADD ? a*N/b + c*N/d : a*N/b - c*N/d;
+      if (r === 0) continue;
+      if (st.kurz && gcd(r,N) === 1 && tries < 1500) continue;
+      if (st.task && st.task.a === a && st.task.b === b && st.task.c === c && st.task.d === d) continue;
+      return {kind, a,b,c,d};
+    }
+    return ADD ? {kind:'versch', a:1,b:4,c:1,d:3} : {kind:'versch', a:3,b:4,c:1,d:3};
+  }
+  function genFehler(){
+    for (let tries = 0; tries < 2000; tries++){
+      const b = rnd(3,8), d = rnd(2,6), a = rnd(1,b-1), c = rnd(1,d-1);
+      if (b === d || !okPair(a,b,c,d)) continue;
+      if (!ADD && (a <= c || b <= d)) continue;
+      const wn = ADD ? a + c : a - c, wd = ADD ? b + d : b - d;
+      if (wn / wd > 3) continue;
+      return {kind:'fehler', a,b,c,d, wn, wd};
+    }
+    return ADD ? {kind:'fehler', a:1,b:4,c:1,d:3, wn:2, wd:7} : {kind:'fehler', a:3,b:4,c:1,d:3, wn:2, wd:1};
+  }
+  function newTask(){
+    let kind = st.kind;
+    if (kind === 'mix') kind = Math.random() < .35 ? 'passt' : 'versch';
+    setTask(kind === 'fehler' ? genFehler() : gen(kind));
+  }
+  function setTask(t){
+    st.task = t; st.hints = 0; st.solved = false; st.failed = false; st.pick = null;
+    Object.keys(keep).forEach(k => delete keep[k]);
+    ['pairA','pairB','pairR','pairK'].forEach(id => $(id).innerHTML = '');
+    st.revealed = st.help === 'sofort';
+    if (t.kind === 'gleich'){ st.N = t.b; st.step = 3; } else { st.N = null; st.step = 1; }
+    ['nN'].forEach(id => $(id).value = '');
+    build();
+    if (t.kind === 'fehler') setFb('info', (ADD ? 'Max' : 'Mia') + ' hat gerechnet. Wähle die Aussage, die stimmt.');
+    else if (t.kind === 'gleich') setFb('info', ADD ? 'Die Nenner sind gleich. Zähle die Felder zusammen.' : 'Die Nenner sind gleich. Nimm die Felder weg.');
+    else setFb('info', st.help === 'kopf'
+      ? 'Stell dir zuerst vor: In wie viele gleich große Felder muss das Ganze geteilt sein? Trage dann den gemeinsamen Nenner ein.'
+      : 'Schritt 1: Finde einen gemeinsamen Nenner. Zähle die Vielfachen des kleineren Nenners auf und prüfe, welches auch zum größeren Nenner passt.');
+    focusStep();
+  }
+
+  // ---------- Bausteine fürs Anzeigen ----------
+  const fr = (n,d) => `<span class="frac"><span>${n}</span><span class="bar"></span><span>${d}</span></span>`;
+  const inp = (id,lab,val) => `<input id="${id}" inputmode="numeric" autocomplete="off" aria-label="${lab}" value="${val==null?'':val}">`;
+  const eq = (k, below) => `<span class="eq${below?' below':''}" aria-label="Gleichheitszeichen mit Zahl ${below?'darunter':'darüber'}"><span class="k ${k?'':'empty'}">${k||'?'}</span><span class="sign">=</span></span>`;
+  const keep = {};
+  function remember(){ ['xA','xB','rR','pK','qK'].forEach(id => { const el = $(id); if (el) keep[id] = el.value; }); }
+
+  function build(){
+    const t = st.task, fehler = t.kind === 'fehler';
+    $('steps').hidden = fehler; $('choice').hidden = !fehler;
+    if (fehler){ buildFehler(); renderStage(); draw(); return; }
+    const {a,b,c,d} = t;
+    $('task').innerHTML = `<span class="tag">${ADD?'Addieren':'Subtrahieren'}</span> ${t.kind==='gleich' ? 'Gleiche Nenner: '+(ADD?'Addiere':'Subtrahiere')+'.' : (ADD?'Addiere':'Subtrahiere')+' die Brüche.'}${st.kurz?' Kürze das Ergebnis so weit wie möglich.':''}`;
+    $('bigline').innerHTML = `${fr(a,b)}<span class="op">${SYM}</span>${fr(c,d)}<span class="op">=</span><span class="op">?</span>`;
+    remember();
+    const N = st.N, k1 = N ? N/b : null, k2 = N ? N/d : null;
+    const showS2 = t.kind !== 'gleich';
+    $('s1').hidden = t.kind === 'gleich'; $('s2').hidden = t.kind === 'gleich' || st.step < 2;
+    $('nN').readOnly = st.step > 1; if (st.step > 1 && N) $('nN').value = N;
+    if (showS2 && st.step >= 2){
+      $('pairA').innerHTML = `${fr(a,b)}${eq(k1)}<span class="frac">${inp('xA','Erweiterter Zähler des ersten Bruchs',keep.xA)}<span class="bar"></span><span>${N}</span></span>`;
+      $('pairB').innerHTML = `${fr(c,d)}${eq(k2)}<span class="frac">${inp('xB','Erweiterter Zähler des zweiten Bruchs',keep.xB)}<span class="bar"></span><span>${N}</span></span>`;
+      if (st.step > 2){ $('xA').readOnly = true; $('xB').readOnly = true; }
+    }
+    $('s3').hidden = st.step < 3;
+    if (st.step >= 3){
+      const x = t.kind === 'gleich' ? a : a*k1, y = t.kind === 'gleich' ? c : c*k2;
+      $('pairR').innerHTML = `${fr(x,N)}<span class="op">${SYM}</span>${fr(y,N)}<span class="op">=</span><span class="frac">${inp('rR','Zähler des Ergebnisses',keep.rR)}<span class="bar"></span><span>${N}</span></span>`;
+      if (st.step > 3) $('rR').readOnly = true;
+    }
+    const r = resultNum();
+    const needK = st.kurz && st.step >= 4 && r !== null && gcd(r,N) > 1;
+    $('s4').hidden = !needK;
+    if (needK){
+      const g = gcd(r,N);
+      $('pairK').innerHTML = `${fr(r,N)}${eq(st.solved ? g : null, true)}<span class="frac">${inp('pK','Gekürzter Zähler',keep.pK)}<span class="bar"></span>${inp('qK','Gekürzter Nenner',keep.qK)}</span>`;
+    }
+    ['s1','s2','s3','s4'].forEach((id,i) => { const el = $(id); el.classList.toggle('active', st.step === i+1 && !st.solved); el.classList.toggle('done', st.step > i+1 || (st.solved && st.step === i+1)); });
+    ['xA','xB','rR','pK','qK'].forEach(id => { const el = $(id); if (el){ el.addEventListener('keydown', e => { if (e.key === 'Enter') check(); }); if (st.solved) el.readOnly = true; } });
+    renderStage();
+    draw();
+  }
+  function resultNum(){
+    const t = st.task; if (!st.N) return null;
+    const x = t.a*st.N/t.b, y = t.c*st.N/t.d;
+    return ADD ? x + y : x - y;
+  }
+  function buildFehler(){
+    const t = st.task, who = ADD ? 'Max' : 'Mia';
+    $('task').innerHTML = `<span class="tag">Fehler finden</span> ${who} rechnet so. Stimmt das?`;
+    $('bigline').innerHTML = `${fr(t.a,t.b)}<span class="op">${SYM}</span>${fr(t.c,t.d)}<span class="op">=</span>${fr(t.wn,t.wd)}`;
+    const opts = ADD ? [
+      ['ok', 'Max hat richtig gerechnet.'],
+      ['nenner', 'Max hat die Nenner addiert. Das geht nicht, weil die Felder verschieden groß sind.'],
+      ['kuerzen', 'Max hat nur vergessen, das Ergebnis zu kürzen.']
+    ] : [
+      ['ok', 'Mia hat richtig gerechnet.'],
+      ['nenner', 'Mia hat Zähler minus Zähler und Nenner minus Nenner gerechnet. Das geht nicht, weil die Felder verschieden groß sind.'],
+      ['kuerzen', 'Mia hat nur vergessen, das Ergebnis zu kürzen.']
+    ];
+    $('choice').innerHTML = opts.map(([v,txt]) => `<button type="button" data-v="${v}" aria-pressed="${st.pick===v}">${txt}</button>`).join('');
+    $('choice').querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => { st.pick = bt.dataset.v; buildFehler(); }));
+  }
+  function focusStep(){
+    const id = st.task.kind === 'fehler' ? null : ({1:'nN',2:'xA',3:'rR',4:'pK'})[st.step];
+    if (id && $(id)) setTimeout(() => $(id).focus({preventScroll:true}), 30);
+  }
+
+  // ---------- Zeichnen ----------
+  const DEFS = '<defs>'
+    + '<pattern id="hatchO" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(40)"><rect width="9" height="9" fill="var(--orange-soft)"/><line x1="2" y1="0" x2="2" y2="9" stroke="var(--orange)" stroke-width="4.5"/></pattern>'
+    + '<pattern id="hatchY" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(-40)"><rect width="8" height="8" fill="var(--yellow-soft)"/><line x1="2" y1="0" x2="2" y2="8" stroke="#e0a800" stroke-width="3"/></pattern>'
+    + '<filter id="pencil" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter></defs>';
+  const R = (x,y,w,h,fill,stroke,sw,extra) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="${stroke||'none'}" stroke-width="${sw||0}" ${extra||''}/>`;
+  const Ln = (x1,y1,x2,y2,w,dash,col) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col||'var(--graphite)'}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+  const T = (x,y,s,size,anchor) => `<text x="${x}" y="${y}" fill="var(--graphite)" font-family="Patrick Hand, Comic Sans MS, cursive" font-size="${size||18}" text-anchor="${anchor||'middle'}">${s}</text>`;
+  const cross = (x,y,w,h) => Ln(x+4,y+4,x+w-4,y+h-4,2.5) + Ln(x+w-4,y+4,x+4,y+h-4,2.5);
+  function sketch(s){
+    const texts = s.match(/<text[\s\S]*?<\/text>/g) || [];
+    return DEFS + '<g filter="url(#pencil)">' + s.replace(/<text[\s\S]*?<\/text>/g,'') + '</g>' + texts.join('');
+  }
+  // Streifen mit Feldern; cells: Array der Füllungen je Feld (oder null)
+  function stripCells(X,y,W,H,n,fills,boldEvery,crossed){
+    let s = R(X,y,W,H,'var(--sheet)');
+    for (let i=0;i<n;i++) if (fills[i]) s += R(X+W*i/n,y,W/n,H,fills[i]);
+    for (let i=1;i<n;i++){ const bold = boldEvery && i % boldEvery === 0; s += Ln(X+W*i/n,y,X+W*i/n,y+H, bold?3.5:1.6); }
+    if (crossed) crossed.forEach(i => s += cross(X+W*i/n,y,W/n,H));
+    return s + R(X,y,W,H,'none','var(--graphite)',3.2);
+  }
+  const fillRun = (n, from, count, f) => Array.from({length:n}, (_,i) => (i>=from && i<from+count) ? f : null);
+
+  function draw(){
+    const t = st.task;
+    const showPic = st.help !== 'aus';
+    $('fig').hidden = !showPic;
+    const hide = st.help === 'kopf' && !st.revealed && t.kind !== 'fehler';
+    $('picwrap').hidden = hide; $('hiddenpic').hidden = !hide;
+    if (!showPic) return;
+    if (hide){ $('piccap').textContent = ''; $('legend').innerHTML = ''; return; }
+    let s;
+    if (t.kind === 'fehler') s = drawFehler(t);
+    else if (st.view === 'rect') s = drawRect(t);
+    else s = drawStrips(t);
+    $('pic').innerHTML = sketch(s);
+    $('legend').innerHTML = t.kind === 'fehler' ? '' : (ADD
+      ? `<span><i class="sw o"></i>${t.a}/${t.b}</span><span><i class="sw y"></i>${t.c}/${t.d}</span>`
+      : `<span><i class="sw o"></i>${t.a}/${t.b}</span><span><i class="sw y"></i>${t.c}/${t.d} wird weggenommen</span><span><i class="sw x"></i>weggenommene Felder</span>`);
+  }
+
+  function drawStrips(t){
+    const {a,b,c,d} = t, N = st.N, X = 90, W = 470, H = 44;
+    let s = '';
+    const fine = N && t.kind !== 'gleich';
+    s += T(X-14, 46, `${a}/${b}`, 20, 'end');
+    s += fine ? stripCells(X,22,W,H,N,fillRun(N,0,a*N/b,'url(#hatchO)'),N/b) : stripCells(X,22,W,H,b,fillRun(b,0,a,'url(#hatchO)'),0);
+    s += T(X-14, 112, `${c}/${d}`, 20, 'end');
+    const fillB = ADD ? 'url(#hatchY)' : 'url(#hatchY)';
+    s += fine ? stripCells(X,88,W,H,N,fillRun(N,0,c*N/d,fillB),N/d) : stripCells(X,88,W,H,d,fillRun(d,0,c,fillB),0);
+    if (N){
+      const x = a*N/b, y = c*N/d;
+      s += T(X-14, 196, ADD ? 'zusammen' : 'übrig', 18, 'end');
+      if (ADD){
+        const f = Array.from({length:N}, (_,i) => i < x ? 'url(#hatchO)' : (i < x+y ? 'url(#hatchY)' : null));
+        s += stripCells(X,172,W,H,N,f,0);
+      } else {
+        const f = fillRun(N,0,x,'url(#hatchO)'), cr = Array.from({length:y},(_,j)=>x-y+j);
+        s += stripCells(X,172,W,H,N,f,0,cr);
+      }
+      s += T(300, 262, t.kind === 'gleich' ? `Alle Felder sind gleich groß: ${F(N)} im Ganzen.` : `Gemeinsamer Nenner ${N}: Beide Streifen haben jetzt ${N} gleich große Felder.`, 18);
+      $('piccap').textContent = ADD ? 'Unten werden die gleich großen Felder zusammengelegt.' : 'Unten werden die gleich großen Felder weggenommen (durchgestrichen).';
+    } else {
+      s += R(X,172,W,H,'none','var(--pencil)',2,'stroke-dasharray="8 6"');
+      s += T(300,200,'Die Felder sind verschieden groß. Wie fein musst du einteilen?',18);
+      $('piccap').textContent = 'Wenn dein gemeinsamer Nenner stimmt, werden beide Streifen fein genug eingeteilt.';
+    }
+    $('pic').setAttribute('viewBox','0 0 600 280');
+    return s;
+  }
+
+  function drawRect(t){
+    const {a,b,c,d} = t, N = st.N, fine = N && t.kind !== 'gleich';
+    const W = 240, H = 150, Y = 30, XA = 40, XB = 320;
+    let s = T(XA+W/2, 20, `Beet A: ${a}/${b}`, 19) + T(XB+W/2, 20, `Beet B: ${c}/${d}`, 19);
+    // Beet A: b senkrechte Streifen, a gefärbt; feiner: jede Spalte in N/b Reihen
+    s += R(XA,Y,W,H,'var(--sheet)') + R(XA,Y,W*a/b,H,'url(#hatchO)');
+    if (fine){ const rws = N/b; for (let r=1;r<rws;r++) s += Ln(XA,Y+H*r/rws,XA+W,Y+H*r/rws,1.6,'6 4'); }
+    for (let i=1;i<b;i++) s += Ln(XA+W*i/b,Y,XA+W*i/b,Y+H,3);
+    s += R(XA,Y,W,H,'none','var(--graphite)',3.5);
+    // Beet B: d waagerechte Streifen (bei gleichen Nennern senkrecht wie A)
+    if (t.kind === 'gleich'){
+      s += R(XB,Y,W,H,'var(--sheet)') + R(XB,Y,W*c/d,H,'url(#hatchY)');
+      for (let i=1;i<d;i++) s += Ln(XB+W*i/d,Y,XB+W*i/d,Y+H,3);
+    } else {
+      s += R(XB,Y,W,H,'var(--sheet)') + R(XB,Y,W,H*c/d,'url(#hatchY)');
+      if (fine){ const cls = N/d; for (let cc=1;cc<cls;cc++) s += Ln(XB+W*cc/cls,Y,XB+W*cc/cls,Y+H,1.6,'6 4'); }
+      for (let i=1;i<d;i++) s += Ln(XB,Y+H*i/d,XB+W,Y+H*i/d,3);
+    }
+    s += R(XB,Y,W,H,'none','var(--graphite)',3.5);
+    // Beet C: Ergebnis als Raster (b Spalten, N/b Reihen), spaltenweise gefüllt
+    const XC = 180, YC = 230;
+    if (N){
+      const cols = b, rows = N/b, x = a*N/b, y = c*N/d, cw = W/cols, ch = H/rows;
+      s += T(XC+W/2, 220, ADD ? `Beet C: zusammen` : `Beet C: übrig nach dem Wegnehmen`, 19);
+      s += R(XC,YC,W,H,'var(--sheet)');
+      for (let i=0;i<N;i++){
+        const col = Math.floor(i/rows), row = i % rows, cx = XC+col*cw, cy = YC+row*ch;
+        if (i < x) s += R(cx,cy,cw,ch,'url(#hatchO)');
+        else if (ADD && i < x+y) s += R(cx,cy,cw,ch,'url(#hatchY)');
+        if (!ADD && i >= x-y && i < x) s += cross(cx,cy,cw,ch);
+      }
+      for (let r=1;r<rows;r++) s += Ln(XC,YC+ch*r,XC+W,YC+ch*r,1.6);
+      for (let cc=1;cc<cols;cc++) s += Ln(XC+cw*cc,YC,XC+cw*cc,YC+H,3);
+      s += R(XC,YC,W,H,'none','var(--graphite)',3.5);
+      s += T(300, 410, `${F(N)} im Ganzen`, 18);
+      $('piccap').textContent = t.kind === 'gleich' ? 'Die Felder sind gleich groß.' : 'Die gestrichelten Linien teilen beide Beete in gleich große Felder.';
+    } else {
+      s += R(XC,YC,W,H,'none','var(--pencil)',2,'stroke-dasharray="8 6"') + T(300,YC+H/2+6,'Gemeinsamer Nenner?',18);
+      $('piccap').textContent = 'Wenn dein gemeinsamer Nenner stimmt, werden beide Beete fein genug eingeteilt.';
+    }
+    $('pic').setAttribute('viewBox','0 0 600 420');
+    return s;
+  }
+
+  function drawFehler(t){
+    const {a,b,c,d,wn,wd} = t;
+    const vals = [a/b, c/d, wn/wd, ADD ? a/b + c/d : a/b - c/d];
+    const U = Math.max(1, Math.ceil(Math.max(...vals) - 1e-9)), X = 150, W = 420, uw = W/U, H = 36;
+    const row = (y, label, num, den, fill) => {
+      let s = T(X-12, y+26, label, 18, 'end');
+      for (let u=0;u<U;u++) s += R(X+u*uw,y,uw,H,'var(--sheet)');
+      s += R(X,y,uw*num/den,H,fill);
+      for (let u=0;u<U;u++){ for (let j=1;j<den;j++) s += Ln(X+u*uw+uw*j/den,y,X+u*uw+uw*j/den,y+H,1.5); s += R(X+u*uw,y,uw,H,'none','var(--graphite)',3); }
+      return s;
+    };
+    let s = row(14, `${a}/${b}`, a, b, 'url(#hatchO)') + row(64, `${c}/${d}`, c, d, 'url(#hatchY)');
+    s += row(124, `${ADD?'Max':'Mia'}: ${wn}/${wd}`, wn, wd, 'url(#hatchO)');
+    if (st.solved){ const N = lcm(b,d), r = ADD ? a*N/b + c*N/d : a*N/b - c*N/d; s += row(174, `richtig: ${r}/${N}`, r, N, 'url(#hatchY)'); }
+    $('pic').setAttribute('viewBox', `0 0 600 ${st.solved ? 225 : 175}`);
+    $('piccap').textContent = U > 1 ? 'Jedes Kästchen-Stück ist ein Ganzes. Vergleiche die Länge der gefärbten Teile.' : 'Vergleiche die Länge der gefärbten Teile.';
+    return s;
+  }
+
+  // ---------- Prüfen ----------
+  function setFb(kind,msg){ const f=$('fb'); f.className='feedback '+kind; f.textContent = kind === 'tip' ? msg.replace(/^Tipp:\s*/,'') : msg; $('hint').classList.toggle('tip-on', kind === 'tip'); }
+  const num = id => { const el = $(id); if (!el) return NaN; const v = el.value.trim(); return v === '' ? NaN : Number(v); };
+  function showFinish(){
+    ['path','settings'].forEach(id => $(id).hidden = true);
+    document.querySelector('.appswitch').hidden = true; document.querySelector('section.card').hidden = true;
+    $('finish').hidden = false; window.scrollTo({top:0, behavior:'smooth'}); $('finish-free').focus({preventScroll:true});
+  }
+  function hideFinish(){
+    $('finish').hidden = true; document.querySelector('.appswitch').hidden = false; document.querySelector('section.card').hidden = false;
+  }
+  function fail(msg){ st.failed = true; st.streak = 0; $('streak').textContent = 0; setFb('bad', msg); }
+  function win(msg){
+    if (!st.solved){
+      st.solved = true; st.score++; if (!st.failed) st.streak++;
+      if (st.app === 'path'){
+        const g = STAGES[path.stage].goal;
+        const wasDone = path.prog[path.stage] >= g;
+        if (path.prog[path.stage] < g) path.prog[path.stage]++;
+        if (!wasDone && path.prog[path.stage] >= g && path.stage === STAGES.length-1) setTimeout(showFinish, 1600);
+        if (path.prog[path.stage] >= g){
+          path.unlocked = Math.max(path.unlocked, Math.min(path.stage+1, STAGES.length-1));
+          msg += path.stage < STAGES.length-1 ? ' Station geschafft! Weiter geht es mit der nächsten Station.' : ' Du hast den ganzen Übungsweg geschafft!';
+        }
+        savePath();
+      }
+    }
+    $('score').textContent = st.score; $('streak').textContent = st.streak;
+    st.revealed = true; remember(); build(); setFb('ok', msg); $('next').focus({preventScroll:true});
+  }
+  function advance(to, msg){ remember(); st.step = to; if (st.help === 'kopf' && to >= 3) st.revealed = true; build(); setFb('ok', msg); focusStep(); }
+
+  function check(){
+    const t = st.task;
+    if (st.solved) return;
+    if (t.kind === 'fehler') return checkFehler();
+    const {a,b,c,d} = t;
+    if (st.step === 1){
+      const N = num('nN');
+      if (isNaN(N)) return setFb('bad','Trage zuerst einen gemeinsamen Nenner ein.');
+      if (N === b + d && (N % b || N % d)) return fail(`Du hast die Nenner addiert. Der gemeinsame Nenner muss in der Einmaleins-Reihe von ${b} und von ${d} vorkommen.`);
+      if (!Number.isInteger(N) || N <= 0) return fail('Der Nenner muss eine ganze Zahl sein.');
+      if (N % b && N % d) return fail(`${N} passt weder zu ${b} noch zu ${d}. Zähle die Vielfachen des kleineren Nenners ${Math.min(b,d)} auf und prüfe, welches auch zu ${Math.max(b,d)} passt.`);
+      if (N % b) return fail(`${N} ist nicht in der ${b}er-Reihe. Dann kann man ${a}/${b} nicht auf ${N}tel erweitern.`);
+      if (N % d) return fail(`${N} ist nicht in der ${d}er-Reihe. Dann kann man ${c}/${d} nicht auf ${N}tel erweitern.`);
+      if (N > 120) return fail('Das geht zwar, aber die Zahlen werden sehr groß. Suche einen kleineren gemeinsamen Nenner.');
+      st.N = N;
+      const small = N === lcm(b,d) ? ' Das ist sogar der kleinste gemeinsame Nenner.' : ` Es geht auch kleiner: ${lcm(b,d)}.`;
+      return advance(2, `${N} passt: ${N} : ${b} = ${N/b} und ${N} : ${d} = ${N/d}.${small} Schritt 2: Erweitere beide Brüche.`);
+    }
+    if (st.step === 2){
+      const N = st.N, k1 = N/b, k2 = N/d, xA = num('xA'), xB = num('xB');
+      if (isNaN(xA) || isNaN(xB)) return setFb('bad','Trage beide erweiterten Zähler ein.');
+      for (const [v,z,k,n,nm] of [[xA,a,k1,b,'ersten'],[xB,c,k2,d,'zweiten']]){
+        if (v === z*k) continue;
+        if (v === z && k > 1) return fail(`Beim ${nm} Bruch: Den Zähler musst du auch mit ${k} malnehmen. Auch die Felder des Teils werden geteilt.`);
+        if (v === z + (N - n)) return fail(`Beim ${nm} Bruch: Du hast zum Zähler dieselbe Zahl addiert wie zum Nenner. Beim Erweitern wird malgenommen: ${z} · ${k}.`);
+        return fail(`Beim ${nm} Bruch stimmt der Zähler noch nicht. Über dem Gleichheitszeichen steht ${k}: Rechne ${z} · ${k}.`);
+      }
+      return advance(3, `Richtig erweitert. Jetzt sind alle Felder gleich groß. Schritt 3: ${ADD?'Addiere':'Subtrahiere'} die Zähler.`);
+    }
+    if (st.step === 3){
+      const N = st.N, x = t.kind === 'gleich' ? a : a*N/b, y = t.kind === 'gleich' ? c : c*N/d, r = ADD ? x + y : x - y, v = num('rR');
+      if (isNaN(v)) return setFb('bad','Trage den Zähler des Ergebnisses ein.');
+      if (v !== r){
+        if (t.kind !== 'gleich' && v === (ADD ? a + c : a - c)) return fail(`Du hast die alten Zähler genommen. Rechne mit den erweiterten Zählern: ${x} ${SYM} ${y}.`);
+        return fail(ADD ? `Zähle die Felder zusammen: ${x} + ${y}.` : `Nimm die Felder weg: ${x} − ${y}.`);
+      }
+      if (st.kurz && gcd(r,N) > 1) return advance(4, `${r}/${N} stimmt. Schritt 4: Kürze das Ergebnis so weit wie möglich.`);
+      const tail = st.kurz ? ` ${r}/${N} kann man nicht kürzen.` : (gcd(r,N) > 1 ? ` Übrigens: ${r}/${N} kann man noch kürzen.` : '');
+      st.step = 3; return win(`Richtig! ${a}/${b} ${SYM} ${c}/${d} = ${r}/${N}.${tail}`);
+    }
+    if (st.step === 4){
+      const N = st.N, r = resultNum(), g = gcd(r,N), p = num('pK'), q = num('qK');
+      if (isNaN(p) || isNaN(q)) return setFb('bad','Trage den gekürzten Zähler und Nenner ein.');
+      if (p * N !== q * r) return fail(`${p}/${q} ist nicht so groß wie ${r}/${N}. Teile Zähler und Nenner durch dieselbe Zahl.`);
+      if (gcd(p,q) > 1) return fail(`${p}/${q} stimmt, aber du kannst noch weiter kürzen: Durch ${gcd(p,q)}.`);
+      return win(`Richtig! ${a}/${b} ${SYM} ${c}/${d} = ${r}/${N} = ${p}/${q}${p === q ? ', also genau 1 Ganzes' : ''}. Gekürzt durch ${g}.`);
+    }
+  }
+  function checkFehler(){
+    const t = st.task, who = ADD ? 'Max' : 'Mia';
+    if (!st.pick) return setFb('bad','Wähle zuerst eine Aussage aus.');
+    const N = lcm(t.b,t.d), r = ADD ? t.a*N/t.b + t.c*N/t.d : t.a*N/t.b - t.c*N/t.d;
+    if (st.pick === 'nenner') return win(ADD
+      ? `Genau! ${t.wn}/${t.wd} ist sogar kleiner als ${t.a/t.b >= t.c/t.d ? t.a+'/'+t.b : t.c+'/'+t.d} allein. Richtig ist ${r}/${N}: erst gleich große Felder, dann addieren.`
+      : `Genau! ${t.wn/t.wd > t.a/t.b ? t.wn+'/'+t.wd+' ist sogar größer als '+t.a+'/'+t.b+', obwohl etwas weggenommen wurde. ' : 'Mias Ergebnis '+t.wn+'/'+t.wd+' hat eine ganz andere Größe. '}Richtig ist ${r}/${N}: erst gleich große Felder, dann subtrahieren.`);
+    if (st.pick === 'ok') return fail(`Vergleiche die Streifen: Passt ${who}s Ergebnis ${t.wn}/${t.wd} zur Länge? ${ADD ? 'Das Ergebnis muss größer sein als jeder einzelne Bruch.' : 'Nach dem Wegnehmen muss weniger übrig sein als am Anfang.'}`);
+    return fail(`Kürzen ändert die Größe nicht. ${who}s Ergebnis hat aber eine ganz andere Größe als das richtige Ergebnis. Schau, was ${who} mit den Nennern gemacht hat.`);
+  }
+
+  function hint(){
+    const t = st.task; st.hints++;
+    if (t.kind === 'fehler') return setFb('tip', ADD ? 'Tipp: Ist Max’ Ergebnis größer als jeder einzelne Bruch? Das müsste beim Addieren so sein.' : 'Tipp: Ist nach dem Wegnehmen weniger übrig als am Anfang? Vergleiche Mias Ergebnis mit dem ersten Bruch.');
+    const {a,b,c,d} = t;
+    if (st.step === 1){
+      const big = Math.max(b,d), small = Math.min(b,d), L = lcm(b,d);
+      const row = Array.from({length: Math.min(12, Math.max(5, L/small))}, (_,i) => small*(i+1)).join(', ');
+      return setFb('tip', st.hints === 1
+        ? `Tipp: Zähle die Vielfachen des kleineren Nenners ${small} auf: ${row} … Welche dieser Zahlen ist auch ein Vielfaches von ${big}?`
+        : `Tipp: In der ${small}er-Reihe kommt ${L} vor. ${L} ist auch in der ${big}er-Reihe, denn ${L} : ${big} = ${L/big}.`);
+    }
+    if (st.step === 2) return setFb('tip', `Tipp: Die Zahl über dem Gleichheitszeichen sagt dir, womit du malnimmst: ${a} · ${st.N/b} und ${c} · ${st.N/d}.`);
+    if (st.step === 3){ const x = t.kind === 'gleich' ? a : a*st.N/b, y = t.kind === 'gleich' ? c : c*st.N/d; return setFb('tip', ADD ? `Tipp: Zähle die gefärbten Felder zusammen: ${x} + ${y}. Der Nenner bleibt ${st.N}.` : `Tipp: Von ${x} Feldern werden ${y} weggenommen. Der Nenner bleibt ${st.N}.`); }
+    if (st.step === 4){ const r = resultNum(); return setFb('tip', `Tipp: Durch welche Zahl kann man ${r} und ${st.N} beide teilen? Die größte ist ${gcd(r,st.N)}. Diese Zahl kommt unter das Gleichheitszeichen.`); }
+  }
+
+  // ---------- Übungsweg ----------
+  function applyStage(){ const S = STAGES[path.stage]; Object.assign(st, {kind:S.kind, view:S.view, help:S.help, kurz:S.kurz, lvl:S.lvl}); }
+  function goStage(i){ path.stage = i; savePath(); applyStage(); newTask(); }
+  function renderStage(){
+    if (st.app !== 'path'){ $('next').textContent = 'Neue Aufgabe'; $('next').classList.remove('go'); return; }
+    const ol = $('stations'); ol.innerHTML = '';
+    STAGES.forEach((S,i) => {
+      const li = document.createElement('li'), bt = document.createElement('button');
+      bt.type = 'button'; bt.textContent = i+1; bt.title = S.t; bt.setAttribute('aria-label', `Station ${i+1}: ${S.t}`);
+      if (path.prog[i] >= S.goal) bt.classList.add('done');
+      if (i === path.stage){ bt.classList.add('current'); bt.setAttribute('aria-current','step'); }
+      bt.disabled = i > path.unlocked;
+      bt.addEventListener('click', () => goStage(i));
+      li.appendChild(bt); ol.appendChild(li);
+    });
+    const S = STAGES[path.stage], p = Math.min(path.prog[path.stage], S.goal);
+    $('stage-title').textContent = `Station ${path.stage+1}: ${S.t}`;
+    $('stage-intro').textContent = S.i;
+    $('stage-prog').textContent = `${p} von ${S.goal} richtig`;
+    $('dots').innerHTML = Array.from({length:S.goal},(_,j)=>`<span class="${j<p?'on':''}"></span>`).join('');
+    const done = p >= S.goal && path.stage < STAGES.length-1;
+    $('next').textContent = done ? `Weiter zu Station ${path.stage+2}` : 'Neue Aufgabe';
+    $('next').classList.toggle('go', done);
+  }
+  function setApp(a){
+    st.app = a;
+    $('path').hidden = a !== 'path'; $('settings').hidden = a === 'path';
+    if (a === 'path') applyStage();
+    else { Object.assign(st, FREE); }
+    if (a !== 'path') [['seg-kind','kind'],['seg-view','view'],['seg-help','help'],['seg-kurz','kurz'],['seg-lvl','lvl']].forEach(([id,key]) =>
+      $(id).querySelectorAll('button').forEach(bt => bt.setAttribute('aria-pressed', String(bt.dataset.v) === String(key === 'kurz' ? (st.kurz?1:0) : st[key]) ? 'true' : 'false')));
+    newTask();
+  }
+
+  // ---------- Verdrahtung ----------
+  function seg(id, key, cast){
+    $(id).querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => {
+      $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === bt ? 'true' : 'false'));
+      st[key] = cast ? cast(bt.dataset.v) : bt.dataset.v;
+      FREE[key] = st[key];
+      if (key === 'view'){ remember(); build(); }
+      else if (key === 'help'){ st.revealed = st.help === 'sofort' || st.solved; remember(); build(); }
+      else newTask();
+    }));
+  }
+  seg('seg-kind','kind'); seg('seg-view','view'); seg('seg-help','help'); seg('seg-kurz','kurz', v => v === '1'); seg('seg-lvl','lvl',Number);
+  $('seg-app').querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => {
+    $('seg-app').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === bt ? 'true' : 'false'));
+    setApp(bt.dataset.v);
+  }));
+  $('nN').addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+  $('reveal').addEventListener('click', () => { st.revealed = true; draw(); });
+  $('check').addEventListener('click', check);
+  $('hint').addEventListener('click', hint);
+  $('next').addEventListener('click', () => {
+    if (st.app === 'path' && path.prog[path.stage] >= STAGES[path.stage].goal && path.stage < STAGES.length-1){ goStage(path.stage+1); return; }
+    newTask();
+  });
+
+  $('finish-free').addEventListener('click', () => { hideFinish(); document.querySelectorAll('#seg-app button')[1].click(); });
+  $('finish-back').addEventListener('click', () => { hideFinish(); document.querySelectorAll('#seg-app button')[0].click(); });
+  $('finish-reset').addEventListener('click', () => {
+    path.stage = 0; path.unlocked = 0; path.prog = STAGES.map(()=>0); savePath();
+    hideFinish(); document.querySelectorAll('#seg-app button')[0].click();
+  });
+  // Start: Übungsweg; ganz am Anfang die Aufgabe aus dem Arbeitsblatt
+  applyStage();
+  if (path.stage === 0 && path.prog[0] === 0) setTask(ADD ? {kind:'gleich', a:3,b:8,c:2,d:8} : {kind:'gleich', a:5,b:8,c:2,d:8});
+  else newTask();
+})();
+</script>
+</body>
+</html>

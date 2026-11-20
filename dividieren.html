@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brüche dividieren üben</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+
+/* Layout: Karopapier als Grund, darauf Zettel (Stationen, Arbeitskarte) mit Bleistiftrahmen. Orange = Buntstift-Schraffur und Hauptaktion, Gelb = Textmarker für Auswahl und Erfolg. */
+:root{
+  --paper:#fbf8ef;
+  --grid:#d9e2ea;
+  --sheet:#fffdf7;
+  --graphite:#3b3a37;
+  --pencil:#6f6c66;
+  --orange:#ef7a1a;
+  --orange-soft:#ffe1c2;
+  --yellow:#ffd23f;
+  --yellow-soft:#fff3b0;
+  --focus:#ef7a1a;
+  --hand:"Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  --display:"Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  --wob1:255px 18px 225px 18px / 18px 225px 18px 255px;
+  --wob2:18px 225px 18px 255px / 255px 18px 225px 18px;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  color:var(--graphite);font-family:var(--hand);font-size:20px;line-height:1.45;
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:19px 19px;
+}
+main{max-width:900px;margin:0 auto;padding:22px 16px 32px;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:400;font-size:2.6rem;margin:0;line-height:1.05;text-wrap:balance;display:inline;
+   background:linear-gradient(transparent 55%, var(--yellow) 55%, var(--yellow) 88%, transparent 88%);padding:0 6px}
+.sub{margin:8px 0 0;color:var(--pencil);font-size:1.05rem}
+.chips{display:flex;gap:10px}
+.chip{background:var(--sheet);border:2px solid var(--graphite);border-radius:var(--wob1);padding:3px 14px;font-size:1.1rem;font-variant-numeric:tabular-nums;transform:rotate(-1.5deg)}
+.chip + .chip{transform:rotate(1.2deg)}
+.chip b{color:var(--orange);font-weight:400;font-size:1.25rem}
+.appswitch{display:flex;justify-content:center}
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px;max-width:100%}
+.seg button{font:inherit;font-size:1.02rem;border:2px solid var(--graphite);background:var(--sheet);color:var(--graphite);padding:3px 12px;cursor:pointer;border-radius:var(--wob1);white-space:nowrap}
+.seg button:nth-child(even){border-radius:var(--wob2)}
+.seg button[aria-pressed="true"]{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite)}
+.appswitch .seg button{font-size:1.2rem;padding:5px 22px}
+.settings{display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center;background:var(--sheet);border:2px solid var(--graphite);border-radius:var(--wob2);padding:12px 16px}
+.group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.group > span{color:var(--pencil);font-size:1rem}
+.path,.card{background:var(--sheet);border:2.5px solid var(--graphite);box-shadow:3px 4px 0 rgba(59,58,55,.85)}
+.path{border-radius:var(--wob1);padding:14px 20px;display:flex;flex-direction:column;gap:8px;transform:rotate(-.4deg)}
+.card{border-radius:var(--wob2);padding:22px;display:flex;flex-direction:column;gap:14px}
+.stations{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.stations button{font-family:var(--display);font-size:1.2rem;width:42px;height:42px;border-radius:50% 46% 52% 48% / 48% 52% 46% 50%;border:2px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;line-height:1}
+.stations button.done{background:var(--yellow)}
+.stations button.done::after{content:"✓";font-size:.75rem;margin-left:1px}
+.stations button.current{background:var(--orange);color:#fff;box-shadow:2px 3px 0 var(--graphite)}
+.stations button:disabled{border-style:dashed;color:var(--pencil);opacity:.6;cursor:not-allowed}
+.stage-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px}
+.stage-head h2{font-family:var(--display);font-weight:400;font-size:1.6rem;margin:0}
+.stage-prog{color:var(--pencil);font-variant-numeric:tabular-nums}
+.stage-intro{margin:0}
+.dots{display:flex;gap:7px}
+.dots span{width:17px;height:17px;border-radius:50% 45% 55% 50%;border:2px solid var(--graphite)}
+.dots span.on{background:var(--orange)}
+.task{font-family:var(--display);font-weight:400;font-size:1.65rem;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;text-wrap:balance}
+.tag{font-family:var(--hand);font-size:1rem;padding:0 10px;border-radius:var(--wob1);background:var(--orange-soft);border:2px solid var(--orange);transform:rotate(-2deg)}
+.eqrow{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:4px 0}
+.frac{display:inline-flex;flex-direction:column;align-items:center;font-family:var(--display);font-size:2.9rem;line-height:1.05;font-variant-numeric:tabular-nums}
+.frac .bar{width:100%;min-width:52px;height:4px;background:var(--graphite);border-radius:3px 1px 4px 2px;margin:4px 0;transform:rotate(-1.5deg)}
+.frac input{width:3ch;font:inherit;font-size:2.5rem;text-align:center;border:2.5px dashed var(--pencil);border-radius:var(--wob1);background:var(--sheet);color:var(--graphite);padding:0 2px}
+.frac input[readonly]{border-color:transparent;background:transparent}
+.frac input:focus{outline:none;border-style:solid;border-color:var(--orange);background:var(--yellow-soft)}
+.eq{display:inline-flex;flex-direction:column;align-items:center;font-family:var(--display)}
+.eq .k{min-width:46px;text-align:center;font-size:1.6rem;border-radius:var(--wob2);padding:0 8px;color:var(--orange);min-height:2rem;background:var(--yellow-soft)}
+.eq .k.empty{color:var(--pencil);background:transparent;border:2px dashed var(--pencil)}
+.eq .sign{font-size:3rem;line-height:1}
+.fields{margin:0;text-align:center;font-size:1.12rem;padding:6px 12px;border-top:2px dashed var(--grid);border-bottom:2px dashed var(--grid)}
+.fields strong{color:var(--orange);font-weight:400;font-size:1.25rem}
+.pick{display:flex;flex-direction:column;gap:8px;align-items:center}
+.pick p{margin:0;color:var(--pencil);text-align:center}
+.kbtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.kbtns button{font-family:var(--display);font-size:1.6rem;min-width:56px;padding:2px 10px;border:2.5px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;border-radius:var(--wob1)}
+.kbtns button:nth-child(odd){border-radius:var(--wob2)}
+.kbtns button[aria-pressed="true"]{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite);transform:rotate(-2deg)}
+.choice{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.choice button{font:inherit;font-size:1.15rem;padding:6px 18px;border:2.5px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;border-radius:var(--wob1)}
+.choice button[aria-pressed="true"]{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite)}
+figure{margin:0;padding:10px;border:2px dashed var(--pencil);border-radius:var(--wob1);background:var(--sheet)}
+figure svg{display:block;width:100%;height:auto}
+figcaption{text-align:center;color:var(--pencil);font-size:1rem;margin-top:6px}
+.hidden-pic{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;text-align:center;color:var(--pencil)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.btn{font:inherit;font-size:1.2rem;padding:6px 22px;border:2.5px solid var(--graphite);background:var(--sheet);color:var(--graphite);cursor:pointer;border-radius:var(--wob2);box-shadow:2px 3px 0 var(--graphite)}
+.btn:active{transform:translate(2px,3px);box-shadow:none}
+.btn.primary{background:var(--orange);color:#fff}
+.btn.go{background:var(--yellow);color:var(--graphite)}
+button:focus-visible,summary:focus-visible{outline:3px dashed var(--focus);outline-offset:3px}
+.feedback{min-height:3rem;padding:8px 16px;display:flex;align-items:center;gap:10px;font-size:1.12rem;border:2px solid var(--graphite);border-radius:var(--wob1)}
+.feedback.ok{background:var(--yellow-soft);border-color:var(--graphite)}
+.feedback.ok::before{content:"✓";font-family:var(--display);font-size:1.8rem;color:var(--orange)}
+.feedback.bad{background:var(--orange-soft);border-color:var(--orange)}
+.feedback.bad::before{content:"?";font-family:var(--display);font-size:1.8rem;color:var(--orange)}
+.feedback.info{background:transparent;border-style:dashed;border-color:var(--pencil)}
+details{border:2px dashed var(--pencil);border-radius:var(--wob2);padding:6px 14px}
+summary{cursor:pointer;font-size:1.12rem}
+.starters{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:4px 24px;margin-top:6px}
+.starters h3{font-family:var(--display);font-weight:400;font-size:1.25rem;margin:4px 0;display:inline-block;background:linear-gradient(transparent 60%, var(--yellow-soft) 60%)}
+.starters ul{margin:0;padding-left:1.2em}
+.starters li{margin:2px 0}
+.rule{font-size:1.02rem;color:var(--pencil);margin:0}
+.rule strong{color:var(--graphite);font-weight:400;background:linear-gradient(transparent 60%, var(--yellow-soft) 60%)}
+footer{font-size:.85rem;color:var(--pencil);text-align:center}
+[hidden]{display:none !important}
+@media (max-width:480px){ h1{font-size:2rem} .frac{font-size:2.3rem} .card{padding:14px} }
+@media (prefers-reduced-motion: no-preference){ svg .fade{transition:opacity .45s ease} .btn,.kbtns button{transition:transform .1s} }
+
+/* Rechenweg in Schritten */
+.big{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.op{font-family:var(--display);font-size:2.6rem;line-height:1}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:8px 12px;border:2px dashed var(--grid);border-radius:var(--wob1)}
+.step.active{border:2.5px solid var(--orange);background:var(--yellow-soft)}
+.step.done{border-style:solid;border-color:var(--graphite)}
+.step.done .stepno::after{content:" ✓";color:var(--orange)}
+.stepno{font-family:var(--display);font-size:1.15rem;min-width:6.2em;color:var(--pencil)}
+.step .frac{font-size:2.1rem}
+.step .frac input{font-size:1.9rem}
+.step .eq .sign{font-size:2.3rem}
+.step .eq .k{font-size:1.3rem;min-height:1.6rem}
+.step .op{font-size:2.1rem}
+.nbox{width:3.2ch;font:inherit;font-family:var(--display);font-size:1.8rem;text-align:center;border:2.5px dashed var(--pencil);border-radius:var(--wob1);background:var(--sheet);color:var(--graphite)}
+.nbox:focus{outline:none;border-style:solid;border-color:var(--orange);background:var(--yellow-soft)}
+input[readonly]{border-color:transparent !important;background:transparent !important}
+.pair{display:flex;align-items:center;gap:10px}
+.gap{width:22px}
+.legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:1rem;color:var(--pencil);margin-top:4px}
+.sw{display:inline-block;width:18px;height:14px;border:2px solid var(--graphite);vertical-align:middle;margin-right:4px}
+.sw.o{background:repeating-linear-gradient(40deg,var(--orange) 0 4px,var(--orange-soft) 4px 9px)}
+.sw.y{background:repeating-linear-gradient(-40deg,#e0a800 0 3px,var(--yellow-soft) 3px 8px)}
+.sw.x{background:var(--sheet);position:relative}
+.sw.x::after{content:"✕";position:absolute;inset:-4px 0 0 2px;font-size:.8rem}
+.choice{flex-direction:column;align-items:stretch;max-width:640px;margin:0 auto}
+.choice button{text-align:left}
+
+/* Tipp hervorheben */
+.btn.tip-on{background:var(--yellow);box-shadow:2px 3px 0 var(--graphite)}
+.feedback.tip{background:var(--yellow-soft);border:2.5px solid #e0a800;box-shadow:3px 4px 0 var(--yellow);font-size:1.15rem}
+.feedback.tip::before{content:"Tipp";font-family:var(--display);font-size:1.1rem;background:var(--yellow);border:2px solid var(--graphite);border-radius:var(--wob1);padding:0 10px;transform:rotate(-3deg);flex:none}
+.eq.below{flex-direction:column-reverse}
+
+/* Abschluss-Seite */
+.finish{background:var(--sheet);border:2.5px solid var(--graphite);border-radius:var(--wob1);box-shadow:3px 4px 0 rgba(59,58,55,.85);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.finish svg{width:min(260px,70%);height:auto}
+.finish h2{font-family:var(--display);font-weight:400;font-size:2.3rem;line-height:1.15;margin:0;text-wrap:balance}
+.finish h2 span{background:linear-gradient(transparent 58%, var(--yellow) 58%, var(--yellow) 90%, transparent 90%);-webkit-box-decoration-break:clone;box-decoration-break:clone;padding:0 6px}
+.finish p{margin:0;max-width:34em}
+.finish ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;text-align:left}
+.finish li::before{content:"✓ ";color:var(--orange)}
+@media (prefers-reduced-motion: no-preference){ .finish svg .star{transform-origin:130px 120px;animation:pop .6s ease-out} @keyframes pop{from{transform:scale(.6) rotate(-12deg)}to{transform:none}} }
+
+.steps .step .lbl{font-size:1.05rem}
+.whole{font-family:var(--display);font-size:2.1rem}
+.backlink{align-self:flex-start;font-size:1rem;color:var(--graphite);text-decoration:none;border-bottom:2px dashed var(--pencil)}
+.backlink:hover{border-bottom-color:var(--orange)}
+</style>
+</head>
+<body>
+<main>
+  <a class="backlink" href="index.html">← Alle Übungen</a>
+  <header>
+    <div>
+      <h1>Brüche dividieren üben</h1>
+      <p class="sub">Erst Bruch durch Zahl, dann Bruch durch Bruch: verteilen, messen und der Kehrwert</p>
+    </div>
+    <div class="chips" aria-live="polite">
+      <span class="chip">Richtig: <b id="score">0</b></span>
+      <span class="chip">Serie: <b id="streak">0</b></span>
+    </div>
+  </header>
+
+  <section class="finish" id="finish" hidden aria-labelledby="finish-title">
+    <svg viewBox="0 0 260 230" aria-hidden="true">
+      <defs>
+        <pattern id="fhatch" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(40)"><rect width="10" height="10" fill="var(--yellow-soft)"/><line x1="2" y1="0" x2="2" y2="10" stroke="var(--orange)" stroke-width="4"/></pattern>
+        <filter id="fpencil"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="4"/></filter>
+      </defs>
+      <g filter="url(#fpencil)">
+        <polygon class="star" points="130,14 157,84 232,88 173,134 194,206 130,165 66,206 87,134 28,88 103,84" fill="url(#fhatch)" stroke="var(--graphite)" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M18 40 l14 8 M240 36 l-14 10 M14 160 l16 -4 M246 156 l-16 -6" stroke="var(--orange)" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </svg>
+    <h2 id="finish-title"><span>Super, das klappt gut mit dem Dividieren von Brüchen!</span></h2>
+    <p>Du hast alle 8 Stationen des Übungswegs geschafft.</p>
+    <ul><li>Bruch durch Zahl: Zähler teilen oder Nenner malnehmen.</li><li>Bruch durch Bruch: Wie oft passt der zweite Bruch hinein?</li><li>Die Abkürzung: mit dem Kehrwert malnehmen.</li></ul>
+    <div class="actions">
+      <button type="button" class="btn primary" id="finish-free">Weiter frei üben</button>
+      <button type="button" class="btn" id="finish-back">Zurück zum Übungsweg</button>
+      <button type="button" class="btn" id="finish-reset">Übungsweg neu starten</button>
+    </div>
+  </section>
+
+  <div class="appswitch">
+    <div class="seg" role="group" aria-label="Modus" id="seg-app">
+      <button type="button" data-v="path" aria-pressed="true">Übungsweg</button>
+      <button type="button" data-v="free" aria-pressed="false">Freies Üben</button>
+    </div>
+  </div>
+
+  <section class="path" id="path" aria-labelledby="stage-title">
+    <ol class="stations" id="stations" aria-label="Stationen"></ol>
+    <div class="stage-head">
+      <h2 id="stage-title"></h2>
+      <div style="display:flex;align-items:center;gap:10px"><div class="dots" id="dots" aria-hidden="true"></div><span class="stage-prog" id="stage-prog"></span></div>
+    </div>
+    <p class="stage-intro" id="stage-intro"></p>
+  </section>
+
+  <section class="settings" id="settings" aria-label="Einstellungen" hidden>
+    <div class="group"><span id="lbl-kind">Aufgabe</span>
+      <div class="seg" role="group" aria-labelledby="lbl-kind" id="seg-kind"><button type="button" data-v="dz1" aria-pressed="false">Durch Zahl: verteilen</button><button type="button" data-v="dz2" aria-pressed="false">Durch Zahl: feiner</button><button type="button" data-v="dbg" aria-pressed="false">Gleiche Nenner</button><button type="button" data-v="dbv" aria-pressed="false">Erst gleichnamig</button><button type="button" data-v="dk" aria-pressed="true">Kehrwert</button><button type="button" data-v="mix" aria-pressed="false">Gemischt</button><button type="button" data-v="fehler" aria-pressed="false">Fehler finden</button></div>
+    </div>
+    <div class="group"><span id="lbl-help">Bild-Hilfe</span>
+      <div class="seg" role="group" aria-labelledby="lbl-help" id="seg-help">
+        <button type="button" data-v="sofort" aria-pressed="true">sofort</button>
+        <button type="button" data-v="kopf" aria-pressed="false">erst im Kopf</button>
+        <button type="button" data-v="aus" aria-pressed="false">aus</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-kurz">Ergebnis kürzen</span>
+      <div class="seg" role="group" aria-labelledby="lbl-kurz" id="seg-kurz">
+        <button type="button" data-v="0" aria-pressed="true">nein</button>
+        <button type="button" data-v="1" aria-pressed="false">ja</button>
+      </div>
+    </div>
+    <div class="group"><span id="lbl-lvl">Stufe</span>
+      <div class="seg" role="group" aria-labelledby="lbl-lvl" id="seg-lvl">
+        <button type="button" data-v="1" aria-pressed="true">1</button>
+        <button type="button" data-v="2" aria-pressed="false">2</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="task">
+    <p class="task" id="task"></p>
+    <div class="big" id="bigline"></div>
+    <div class="steps" id="steps"></div>
+    <div class="choice" id="choice" hidden role="group" aria-label="Was stimmt?"></div>
+
+    <figure id="fig">
+      <div id="picwrap"><svg id="pic" viewBox="0 0 600 300" role="img" aria-labelledby="piccap"></svg></div>
+      <div class="hidden-pic" id="hiddenpic" hidden>
+        <span>Stell dir die Aufgabe zuerst im Kopf vor. Wird das Ergebnis größer oder kleiner?</span>
+        <button type="button" class="btn" id="reveal">Im Bild kontrollieren</button>
+      </div>
+      <figcaption id="piccap"></figcaption>
+    </figure>
+
+    <div class="actions">
+      <button type="button" class="btn primary" id="check">Prüfen</button>
+      <button type="button" class="btn" id="hint">Tipp</button>
+      <button type="button" class="btn" id="next">Neue Aufgabe</button>
+    </div>
+
+    <div class="feedback info" id="fb" role="status" aria-live="polite"></div>
+
+    <details>
+      <summary>Satzbausteine zum Erklären</summary>
+      <div class="starters"><div><h3>Mein Rechenweg</h3><ul><li>Bruch durch Zahl heißt: Ich verteile den Teil auf … gleiche Teile.</li><li>Wenn der Zähler nicht teilbar ist, teile ich jedes Feld in … kleinere Felder: Nenner mal …</li><li>Bruch durch Bruch fragt: Wie oft passt … in …?</li><li>Ich mache gleichnamig und rechne Zähler durch Zähler.</li><li>Ich nehme mit dem Kehrwert mal, weil …</li></ul></div><div><h3>Am Bild</h3><ul><li>Beim Teilen durch eine Zahl wird es weniger.</li><li>Beim Teilen durch einen Bruch kleiner als 1 wird es mehr, weil er oft hineinpasst.</li><li>… passt …-mal hinein.</li></ul></div></div>
+    </details>
+
+    <p class="rule"><strong>Bruch durch Zahl:</strong> Zähler durch die Zahl oder Nenner mal die Zahl. <strong>Bruch durch Bruch:</strong> gleichnamig machen und Zähler durch Zähler rechnen, oder kurz: mit dem Kehrwert malnehmen. Kürzen: Die Zahl steht unter dem Gleichheitszeichen.</p>
+  </section>
+
+  <footer>Gestaltung im Stil der Übungsseiten zu Brüchen. Impulse nach „Mathe sicher können“ (DZLM), CC BY-NC-SA 4.0.</footer>
+</main>
+
+<script>
+(function(){
+  const OP = 'div';                 // 'mul' oder 'div'
+  const MUL = OP === 'mul';
+  const SYM = MUL ? '·' : ':';
+  const $ = id => document.getElementById(id);
+  const gcd = (x,y) => y ? gcd(y, x % y) : x;
+  const lcm = (x,y) => x / gcd(x,y) * y;
+  const rnd = (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1));
+  const eqv = (p,q,r,s) => p*s === q*r;
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+  const fmt = (p,q) => q === 1 ? `${p}` : `${p}/${q}`;
+  const F = n => n === 1 ? '1 Feld' : n + ' Felder';
+
+  const STAGES = [{"t": "Bruch durch Zahl: verteilen", "i": "6/7 : 3 heißt: 6/7 wird auf 3 gleiche Teile verteilt. Teile den Zähler, der Nenner bleibt.", "kind": "dz1", "help": "sofort", "kurz": false, "lvl": 1, "goal": 3}, {"t": "Bruch durch Zahl: feiner einteilen", "i": "Lässt sich der Zähler nicht teilen, teilst du jedes Feld in kleinere Felder: Nenner mal die Zahl.", "kind": "dz2", "help": "sofort", "kurz": false, "lvl": 1, "goal": 3}, {"t": "Bruch durch Zahl mit Kürzen", "i": "Beide Wege gemischt. Kürze das Ergebnis am Ende so weit wie möglich.", "kind": "dzmix", "help": "sofort", "kurz": true, "lvl": 1, "goal": 3}, {"t": "Bruch durch Bruch: Wie oft passt es?", "i": "6/8 : 2/8 fragt: Wie oft passen 2/8 in 6/8? Bei gleichen Nennern rechnest du Zähler durch Zähler.", "kind": "dbg", "help": "sofort", "kurz": false, "lvl": 1, "goal": 3}, {"t": "Bruch durch Bruch: erst gleichnamig", "i": "Bei verschiedenen Nennern machst du zuerst gleichnamig. Dann fragst du wieder: Wie oft passt es?", "kind": "dbv", "help": "sofort", "kurz": false, "lvl": 1, "goal": 3}, {"t": "Mit dem Kehrwert", "i": "Die Abkürzung: Durch einen Bruch teilen heißt mit seinem Kehrwert malnehmen. Beim Kehrwert tauschen Zähler und Nenner.", "kind": "dk", "help": "sofort", "kurz": false, "lvl": 1, "goal": 3}, {"t": "Fehler finden", "i": "Mia hat gerechnet. Stimmt ihr Ergebnis? Vergleiche im Bild.", "kind": "fehler", "help": "sofort", "kurz": false, "lvl": 1, "goal": 2}, {"t": "Profi-Station", "i": "Alles gemischt, ohne Bild und mit Kürzen. Der Tipp hilft, wenn du nicht weiterkommst.", "kind": "mix", "help": "aus", "kurz": true, "lvl": 2, "goal": 4}];
+  const KEY = 'bruch-weg-' + OP;
+  const path = {stage:0, unlocked:0, prog:STAGES.map(()=>0)};
+  try { const sv = JSON.parse(localStorage.getItem(KEY)||'null'); if (sv && Array.isArray(sv.prog) && sv.prog.length === STAGES.length) Object.assign(path, sv); } catch(e){}
+  const savePath = () => { try { localStorage.setItem(KEY, JSON.stringify(path)); } catch(e){} };
+
+  const FREE = {kind:'dk', help:'sofort', kurz:false, lvl:1};
+  const st = {app:'path', kind:'dk', help:'sofort', kurz:false, lvl:1,
+              task:null, steps:[], step:0, res:null, pick:null, score:0, streak:0, hints:0, solved:false, failed:false, revealed:true};
+
+  // ---------- Aufgaben erzeugen ----------
+  function proper(lvlMax){ let b,a; do { b = rnd(2,lvlMax); a = rnd(1,b-1); } while (gcd(a,b) !== 1); return [a,b]; }
+  function gen(kind){
+    const L = st.lvl, maxB = L === 1 ? 8 : 12;
+    for (let t = 0; t < 3000; t++){
+      if (kind === 'mz' || kind === 'mz2'){
+        const [a,b] = proper(maxB), n = rnd(2, L === 1 ? 4 : 6);
+        if (a*n/b > 3) continue;
+        if (st.kurz && gcd(a*n,b) === 1 && t < 2000) continue;
+        return {kind, a, b, n, swap: kind === 'mz2' && Math.random() < .4};
+      }
+      if (kind === 'mbb'){
+        const [a,b] = proper(L === 1 ? 5 : 8), [c,d] = proper(L === 1 ? 5 : 8);
+        if (st.kurz && gcd(a*c,b*d) === 1 && t < 2000) continue;
+        return {kind, a, b, c, d};
+      }
+      if (kind === 'dz1'){
+        const n = rnd(2, L === 1 ? 4 : 5), b = rnd(3, maxB), q = rnd(1, Math.floor((b-1)/n)); if (q < 1) continue;
+        const a = q*n; if (a >= b || gcd(a,b) !== 1) continue;
+        return {kind, a, b, n};
+      }
+      if (kind === 'dz2'){
+        const [a,b] = proper(L === 1 ? 6 : 9), n = rnd(2, L === 1 ? 4 : 5);
+        if (a % n === 0) continue;
+        if (b*n > (L === 1 ? 30 : 50)) continue;
+        return {kind, a, b, n};
+      }
+      if (kind === 'dbg'){
+        const b = rnd(4, maxB), c = rnd(1, Math.floor(b/2)), a = rnd(c+1, b-1);
+        if (a <= c) continue;
+        if (L === 1 && a % c !== 0 && t < 1500) continue;
+        if (st.kurz && gcd(a,c) === 1 && a % c !== 0 && t < 2000) continue;
+        return {kind, a, b, c, d:b};
+      }
+      if (kind === 'dbv' || kind === 'dk'){
+        const [a,b] = proper(L === 1 ? 6 : 9), [c,d] = proper(L === 1 ? 6 : 9);
+        if (b === d) continue;
+        if (kind === 'dbv' && lcm(b,d) > (L === 1 ? 24 : 40)) continue;
+        if (st.kurz && gcd(a*d,b*c) === 1 && t < 2000) continue;
+        return {kind, a, b, c, d};
+      }
+    }
+    return MUL ? {kind:'mz2', a:2, b:7, n:3} : {kind:'dz2', a:2, b:5, n:3};
+  }
+  function genFehler(){
+    const v = Math.random() < .5 ? 1 : 2;
+    if (MUL){
+      if (v === 1){ const [a,b] = proper(7), n = rnd(2,4); if (a*n/b > 3) return genFehler();
+        return {kind:'fehler', v, a, b, n, wn:a*n, wd:b*n, rn:a*n, rd:b,
+          expr:[a,b,null,n], opts:[['ok','Max hat richtig gerechnet.'],['right','Max hat erweitert. Dann bleibt der Wert gleich groß. Beim Malnehmen mit '+n+' muss es aber '+n+'-mal so viel werden.'],['kurz','Max hat nur vergessen, das Ergebnis zu kürzen.']]}; }
+      const [a,b] = proper(5), [c,d] = proper(5); if (b === d) return genFehler();
+      const N = lcm(b,d), x = a*N/b, y = c*N/d;
+      return {kind:'fehler', v, a, b, c, d, wn:x*y, wd:N, rn:a*c, rd:b*d, extra:`${fmt(x,N)} · ${fmt(y,N)}`,
+        opts:[['ok','Max hat richtig gerechnet.'],['right','Max hat erst gleichnamig gemacht und den Nenner behalten. Beim Malnehmen braucht man keinen gemeinsamen Nenner: Zähler mal Zähler, Nenner mal Nenner.'],['kurz','Max hat nur vergessen, das Ergebnis zu kürzen.']]};
+    }
+    if (v === 1){ const [a,b] = proper(7), n = rnd(2,4); if (a*n/b > 3) return genFehler();
+      return {kind:'fehler', v, a, b, n, wn:a*n, wd:b, rn:a, rd:b*n,
+        opts:[['ok','Mia hat richtig gerechnet.'],['right','Mia hat mal '+n+' gerechnet statt durch '+n+' zu teilen. Beim Teilen muss das Ergebnis kleiner werden.'],['kurz','Mia hat nur vergessen, das Ergebnis zu kürzen.']]}; }
+    const [a,b] = proper(6), [c,d] = proper(6); if (b === d || eqv(a*c,b*d,a*d,b*c)) return genFehler();
+    return {kind:'fehler', v, a, b, c, d, wn:a*c, wd:b*d, rn:a*d, rd:b*c,
+      opts:[['ok','Mia hat richtig gerechnet.'],['right','Mia hat mit dem Bruch malgenommen statt mit seinem Kehrwert. Beim Teilen durch einen Bruch nimmt man mit dem Kehrwert mal.'],['kurz','Mia hat nur vergessen, das Ergebnis zu kürzen.']]};
+  }
+  function newTask(){
+    let kind = st.kind;
+    if (kind === 'mix') kind = MUL ? pick(['mz2','mbb','mbb']) : pick(['dz2','dbv','dk','dk']);
+    if (kind === 'dzmix') kind = pick(['dz1','dz2']);
+    const t = kind === 'fehler' ? genFehler() : gen(kind);
+    if (t.opts){ t.opts = t.opts.sort(() => Math.random() - .5); }
+    setTask(t);
+  }
+
+  // ---------- Darstellung ----------
+  const fr = (n,d) => `<span class="frac"><span>${n}</span><span class="bar"></span><span>${d}</span></span>`;
+  const frv = (p,q) => q === 1 ? `<span class="whole">${p}</span>` : fr(p,q);
+  const box = (id,lab) => `<input class="nbox" id="${id}" inputmode="numeric" autocomplete="off" aria-label="${lab}">`;
+  const frIn = (idn,idd,fixedD) => `<span class="frac"><input id="${idn}" inputmode="numeric" autocomplete="off" aria-label="Zähler"><span class="bar"></span>${fixedD!=null ? `<span>${fixedD}</span>` : `<input id="${idd}" inputmode="numeric" autocomplete="off" aria-label="Nenner">`}</span>`;
+  const eq = (k, below) => `<span class="eq${below?' below':''}" aria-label="Gleichheitszeichen"><span class="k ${k?'':'empty'}">${k||'?'}</span><span class="sign">=</span></span>`;
+  const opS = s => `<span class="op">${s}</span>`;
+  const num = id => { const el = $(id); if (!el) return NaN; const v = el.value.trim(); return v === '' ? NaN : Number(v); };
+  const den = id => { const el = $(id); if (!el) return 1; const v = el.value.trim(); return v === '' ? 1 : Number(v); };
+
+  function exprHTML(t){
+    if (t.kind === 'mz' || t.kind === 'mz2') return t.swap ? `<span class="whole">${t.n}</span>${opS('·')}${fr(t.a,t.b)}` : `${fr(t.a,t.b)}${opS('·')}<span class="whole">${t.n}</span>`;
+    if (t.kind === 'dz1' || t.kind === 'dz2') return `${fr(t.a,t.b)}${opS(':')}<span class="whole">${t.n}</span>`;
+    if (t.kind === 'fehler' && t.n) return `${fr(t.a,t.b)}${opS(SYM)}<span class="whole">${t.n}</span>`;
+    return `${fr(t.a,t.b)}${opS(SYM)}${fr(t.c,t.d)}`;
+  }
+
+  // Ein Schritt: {label, html, ids, check()} – check gibt [ok, Text] zurück
+  function makeSteps(t){
+    const S = [];
+    const k = t.kind;
+    const result = (p,q) => { st.res = [p,q]; };
+    if (k === 'mz'){
+      const terms = Array.from({length:t.n}, () => fr(t.a,t.b)).join(opS('+'));
+      S.push({label:'Als Plusaufgabe', html:`${terms}${opS('=')}${frIn('x1',null,t.b)}`, ids:['x1'], check:() => {
+        const x = num('x1'); if (isNaN(x)) return [null,'Trage den Zähler ein.'];
+        if (x === t.a*t.n){ result(x,t.b); return [true, `Richtig: ${t.n}-mal ${F(t.a)} sind ${F(x)}. Also ${fmt(t.a,t.b)} · ${t.n} = ${fmt(x,t.b)}. Der Zähler wird mal ${t.n} genommen, der Nenner bleibt.`]; }
+        if (x === t.a + t.n) return [false, `Du hast ${t.n} addiert. Es sind aber ${t.n} gleiche Brüche: ${t.a} + ${t.a} + … (${t.n}-mal).`];
+        return [false, `Zähle die Felder: ${t.n}-mal ${F(t.a)}. Der Nenner bleibt ${t.b}.`];
+      }});
+    }
+    if (k === 'mz2'){
+      S.push({label:'Ergebnis', html:`${exprHTML(t)}${opS('=')}${frIn('p1','q1')}`, ids:['p1','q1'], check:() => {
+        const p = num('p1'), q = den('q1'); if (isNaN(p)) return [null,'Trage Zähler und Nenner ein.'];
+        if (eqv(p,q,t.a*t.n,t.b)){ result(p,q); return [true, `Richtig! Zähler mal ${t.n}, der Nenner bleibt: ${fmt(t.a*t.n,t.b)}.`]; }
+        if (eqv(p,q,t.a,t.b)) return [false, `Dein Ergebnis ist genauso groß wie ${t.a}/${t.b}. Du hast erweitert. Beim Malnehmen mit ${t.n} muss es ${t.n}-mal so viel werden: Nur der Zähler wird malgenommen.`];
+        if (eqv(p,q,t.a,t.b*t.n)) return [false, `Du hast den Nenner malgenommen. Dann werden die Felder kleiner und es wird weniger. Beim Malnehmen wird der Zähler mal ${t.n} genommen.`];
+        return [false, `Stell es dir als Plusaufgabe vor: ${t.n}-mal ${t.a}/${t.b}. Zähler mal ${t.n}, der Nenner bleibt.`];
+      }});
+    }
+    if (k === 'mbb'){
+      S.push({label:'Ergebnis', html:`${exprHTML(t)}${opS('=')}${frIn('p1','q1')}`, ids:['p1','q1'], check:() => {
+        const p = num('p1'), q = den('q1'); if (isNaN(p)) return [null,'Trage Zähler und Nenner ein.'];
+        if (eqv(p,q,t.a*t.c,t.b*t.d)){ result(p,q); return [true, `Richtig! ${t.a}/${t.b} von ${t.c}/${t.d} sind ${t.a*t.c} von ${t.b*t.d} Feldern: Zähler mal Zähler, Nenner mal Nenner.`]; }
+        if (eqv(p,q,t.a*t.c,t.b) || eqv(p,q,t.a*t.c,t.d)) return [false, `Den Zähler hast du richtig malgenommen. Auch die Nenner werden malgenommen: ${t.b} · ${t.d}. Am Beet: So viele Felder hat das Ganze.`];
+        if (eqv(p,q,t.a*t.d,t.b*t.c)) return [false, `Das wäre geteilt (mit dem Kehrwert). Beim Malnehmen gilt: Zähler mal Zähler, Nenner mal Nenner.`];
+        if (eqv(p,q,t.a+t.c,t.b+t.d)) return [false, `Du hast addiert. ${t.a}/${t.b} · ${t.c}/${t.d} heißt: ${t.a}/${t.b} von ${t.c}/${t.d}. Das Ergebnis wird kleiner als beide Brüche.`];
+        return [false, `Denk an das Beet: ${t.a}/${t.b} von ${t.c}/${t.d}. Zähle die doppelt gefärbten Felder und alle Felder.`];
+      }});
+    }
+    if (k === 'dz1' || k === 'dz2'){
+      S.push({label:'Ergebnis', html:`${exprHTML(t)}${opS('=')}${frIn('p1','q1')}`, ids:['p1','q1'], check:() => {
+        const p = num('p1'), q = den('q1'); if (isNaN(p)) return [null,'Trage Zähler und Nenner ein.'];
+        if (eqv(p,q,t.a,t.b*t.n)){ result(p,q); return [true, k === 'dz1'
+          ? `Richtig! ${F(t.a)} verteilt auf ${t.n} sind ${F(t.a/t.n)}: ${fmt(t.a/t.n,t.b)}. Genauso gut: Nenner mal ${t.n} gibt ${fmt(t.a,t.b*t.n)}.`
+          : `Richtig! Jedes Feld wird in ${t.n} Teile geteilt, du nimmst einen Teil davon: ${fmt(t.a,t.b*t.n)}. Der Nenner wird mal ${t.n} genommen.`]; }
+        if (eqv(p,q,t.a*t.n,t.b)) return [false, `Du hast malgenommen. Beim Teilen durch ${t.n} wird es weniger: Verteile den Teil auf ${t.n} gleiche Teile.`];
+        if (eqv(p,q,t.a,t.b)) return [false, `Das ist so groß wie vorher. Beim Teilen durch ${t.n} bekommt jeder nur einen von ${t.n} gleichen Teilen.`];
+        return [false, k === 'dz1' ? `Teile den Zähler: ${t.a} : ${t.n}. Der Nenner bleibt.` : `${t.a} kann man nicht durch ${t.n} teilen. Teile darum jedes Feld in ${t.n} kleinere Felder: Nenner mal ${t.n}.`];
+      }});
+    }
+    if (k === 'dbg'){
+      S.push({label:'Wie oft passt es?', html:`${exprHTML(t)}${opS('=')}${frIn('p1','q1')}`, ids:['p1','q1'], check:() => {
+        const p = num('p1'), q = den('q1'); if (isNaN(p)) return [null,'Trage das Ergebnis ein. Bei einer ganzen Zahl lass den Nenner leer.'];
+        if (eqv(p,q,t.a,t.c)){ result(p,q); return [true, `Richtig! ${F(t.c)} ${t.c === 1 ? 'passt' : 'passen'} ${t.a % t.c === 0 ? t.a/t.c+'-mal' : fmt(t.a,t.c)+'-mal'} in ${F(t.a)}. Bei gleichen Nennern rechnest du Zähler : Zähler: ${t.a} : ${t.c}.`]; }
+        if (eqv(p,q,t.a,t.c*t.b)) return [false, `Der Nenner fällt weg: Du fragst nur, wie oft ${F(t.c)} in ${F(t.a)} passen. Das ist ${t.a} : ${t.c}.`];
+        if (eqv(p,q,t.a*t.c,t.b*t.b)) return [false, `Das wäre malgenommen. Frage dich: Wie oft passt ${t.c}/${t.b} in ${t.a}/${t.b}?`];
+        return [false, `Wie oft passen ${F(t.c)} in ${F(t.a)}? Rechne ${t.a} : ${t.c}.`];
+      }});
+    }
+    if (k === 'dbv'){
+      S.push({label:'Gemeinsamer Nenner', html:`<span class="lbl">Mache gleichnamig:</span> ${box('n1','Gemeinsamer Nenner')}`, ids:['n1'], check:() => {
+        const N = num('n1'); if (isNaN(N)) return [null,'Trage einen gemeinsamen Nenner ein.'];
+        if (N % t.b || N % t.d) return [false, `${N} passt nicht zu ${N % t.b ? t.b : t.d}. Zähle die Vielfachen des kleineren Nenners ${Math.min(t.b,t.d)} auf und prüfe, welches auch zu ${Math.max(t.b,t.d)} passt.`];
+        if (N > 120) return [false, 'Das geht, aber die Zahlen werden sehr groß. Suche einen kleineren gemeinsamen Nenner.'];
+        t.N = N; return [true, `${N} passt. Erweitere jetzt beide Brüche.`];
+      }});
+      S.push({label:'Erweitern', html:() => `${fr(t.a,t.b)}${eq(t.N/t.b)}${frIn('x1',null,t.N)}${opS(':')}${fr(t.c,t.d)}${eq(t.N/t.d)}${frIn('x2',null,t.N)}`, ids:['x1','x2'], check:() => {
+        const x = num('x1'), y = num('x2'); if (isNaN(x) || isNaN(y)) return [null,'Trage beide erweiterten Zähler ein.'];
+        if (x !== t.a*t.N/t.b) return [false, `Beim ersten Bruch: ${t.a} · ${t.N/t.b}.`];
+        if (y !== t.c*t.N/t.d) return [false, `Beim zweiten Bruch: ${t.c} · ${t.N/t.d}.`];
+        t.x = x; t.y = y; return [true, `Jetzt haben beide Brüche gleich große Felder. Wie oft passen ${F(y)} in ${F(x)}?`];
+      }});
+      S.push({label:'Wie oft passt es?', html:() => `${fr(t.x,t.N)}${opS(':')}${fr(t.y,t.N)}${opS('=')}${frIn('p1','q1')}`, ids:['p1','q1'], check:() => {
+        const p = num('p1'), q = den('q1'); if (isNaN(p)) return [null,'Trage das Ergebnis ein. Bei einer ganzen Zahl lass den Nenner leer.'];
+        if (eqv(p,q,t.x,t.y)){ result(p,q); return [true, `Richtig! ${t.x} : ${t.y} = ${fmt(t.x/gcd(t.x,t.y),t.y/gcd(t.x,t.y))}. Der gemeinsame Nenner fällt weg.`]; }
+        if (eqv(p,q,t.x,t.y*t.N)) return [false, `Der Nenner fällt weg: Du fragst nur, wie oft ${F(t.y)} in ${F(t.x)} passen.`];
+        return [false, `Rechne Zähler : Zähler: ${t.x} : ${t.y}. Das Ergebnis darf ein Bruch sein: ${t.x}/${t.y}.`];
+      }});
+    }
+    if (k === 'dk'){
+      S.push({label:'Kehrwert', html:`<span class="lbl">Kehrwert von</span> ${fr(t.c,t.d)}${opS(':')} ${frIn('k1','k2')}`, ids:['k1','k2'], check:() => {
+        const p = num('k1'), q = den('k2'); if (isNaN(p)) return [null,'Trage den Kehrwert ein.'];
+        if (p === t.d && q === t.c) return [true, `Richtig: Zähler und Nenner tauschen. Jetzt nimm mit dem Kehrwert mal.`];
+        if (p === t.c && q === t.d) return [false, 'Beim Kehrwert tauschen Zähler und Nenner ihre Plätze.'];
+        return [false, `Tausche Zähler und Nenner von ${t.c}/${t.d}.`];
+      }});
+      S.push({label:'Malnehmen', html:`${fr(t.a,t.b)}${opS('·')}${fr(t.d,t.c)}${opS('=')}${frIn('p1','q1')}`, ids:['p1','q1'], check:() => {
+        const p = num('p1'), q = den('q1'); if (isNaN(p)) return [null,'Trage Zähler und Nenner ein.'];
+        if (eqv(p,q,t.a*t.d,t.b*t.c)){ result(p,q); return [true, `Richtig! ${t.a}/${t.b} : ${t.c}/${t.d} = ${t.a}/${t.b} · ${t.d}/${t.c} = ${fmt(t.a*t.d,t.b*t.c)}.`]; }
+        if (eqv(p,q,t.a*t.c,t.b*t.d)) return [false, 'Du hast mit dem ursprünglichen Bruch gerechnet. Nimm mit dem Kehrwert mal.'];
+        return [false, `Zähler mal Zähler: ${t.a} · ${t.d}. Nenner mal Nenner: ${t.b} · ${t.c}.`];
+      }});
+    }
+    return S;
+  }
+  // Kürzen-Schritt (Zahl unter dem Gleichheitszeichen)
+  function kurzStep(p,q){
+    const g = gcd(p,q);
+    return {label:'Kürzen', html:`${fr(p,q)}${eq(null,true)}${frIn('r1','r2')}`, ids:['r1','r2'], kurz:g, check:() => {
+      const x = num('r1'), y = den('r2'); if (isNaN(x)) return [null,'Trage den gekürzten Bruch ein. Bei einer ganzen Zahl lass den Nenner leer.'];
+      if (!eqv(x,y,p,q)) return [false, `${fmt(x,y)} ist nicht so groß wie ${p}/${q}. Teile Zähler und Nenner durch dieselbe Zahl.`];
+      if (gcd(x,y) > 1) return [false, `Stimmt, aber du kannst noch weiter kürzen: durch ${gcd(x,y)}.`];
+      return [true, `Richtig gekürzt: durch ${g}.${y === 1 ? ' Das ist eine ganze Zahl.' : ''}`];
+    }};
+  }
+
+  function setTask(t){
+    st.task = t; st.hints = 0; st.solved = false; st.failed = false; st.pick = null; st.res = null;
+    st.revealed = st.help === 'sofort'; st.step = 0;
+    st.steps = t.kind === 'fehler' ? [] : makeSteps(t);
+    $('steps').innerHTML = '';
+    build();
+    setFb('info', t.kind === 'fehler' ? (MUL ? 'Max' : 'Mia') + ' hat gerechnet. Wähle die Aussage, die stimmt.' : (STAGES_INFO[t.kind] || 'Rechne Schritt für Schritt.'));
+    focusStep();
+  }
+  const STAGES_INFO = {"dz1": "Verteile die Felder: Teile den Zähler, der Nenner bleibt.", "dz2": "Teile jedes Feld in kleinere Felder: Nenner mal die Zahl.", "dbg": "Wie oft passt der zweite Bruch in den ersten? Bei einer ganzen Zahl lass den Nenner leer.", "dbv": "Schritt 1: Mache die Brüche gleichnamig.", "dk": "Schritt 1: Bilde den Kehrwert des zweiten Bruchs."};
+
+  function build(){
+    const t = st.task, fehler = t.kind === 'fehler';
+    $('steps').hidden = fehler; $('choice').hidden = !fehler;
+    $('task').innerHTML = `<span class="tag">${TAGS[t.kind] || ''}</span> ${QUEST[t.kind] ? QUEST[t.kind](t) : ''}${st.kurz && !fehler ? ' Kürze das Ergebnis so weit wie möglich.' : ''}`;
+    if (fehler){
+      $('bigline').innerHTML = `${exprHTML(t)}${t.extra ? opS('=') + `<span class="whole" style="font-size:1.4rem">${t.extra}</span>` : ''}${opS('=')}${frv(t.wn,t.wd)}`;
+      $('choice').innerHTML = t.opts.map(([v,txt]) => `<button type="button" data-v="${v}" aria-pressed="${st.pick===v}">${txt}</button>`).join('');
+      $('choice').querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => { st.pick = bt.dataset.v; build(); }));
+    } else {
+      $('bigline').innerHTML = `${exprHTML(t)}${opS('=')}${opS('?')}`;
+      renderSteps();
+    }
+    renderStage(); draw();
+  }
+  function renderSteps(){
+    const box = $('steps');
+    // vorhandene Schritte behalten (Eingaben bleiben), neue anhängen
+    st.steps.forEach((S,i) => {
+      if (i > st.step) return;
+      let el = $('step'+i);
+      if (!el){
+        el = document.createElement('div'); el.className = 'step'; el.id = 'step'+i;
+        const html = typeof S.html === 'function' ? S.html() : S.html;
+        el.innerHTML = `<span class="stepno">Schritt ${i+1}</span><span class="lbl">${S.label}:</span><div class="pair">${html}</div>`;
+        box.appendChild(el);
+        S.ids.forEach(id => { const inpt = $(id); if (inpt) inpt.addEventListener('keydown', e => { if (e.key === 'Enter') check(); }); });
+      }
+      const done = i < st.step || st.solved;
+      el.classList.toggle('active', i === st.step && !st.solved);
+      el.classList.toggle('done', done);
+      S.ids.forEach(id => { const inpt = $(id); if (inpt) inpt.readOnly = done; });
+      if (S.kurz && st.solved){ const k = el.querySelector('.eq .k'); if (k){ k.textContent = S.kurz; k.classList.remove('empty'); } }
+    });
+  }
+  function focusStep(){
+    const S = st.steps[st.step]; if (!S) return;
+    const id = S.ids[0]; if (id && $(id)) setTimeout(() => $(id).focus({preventScroll:true}), 30);
+  }
+
+  // ---------- Zeichnen ----------
+  const DEFS = '<defs>'
+    + '<pattern id="hO" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(40)"><rect width="9" height="9" fill="var(--orange-soft)"/><line x1="2" y1="0" x2="2" y2="9" stroke="var(--orange)" stroke-width="4.5"/></pattern>'
+    + '<pattern id="hY" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(-40)"><rect width="8" height="8" fill="var(--yellow-soft)"/><line x1="2" y1="0" x2="2" y2="8" stroke="#e0a800" stroke-width="3"/></pattern>'
+    + '<pattern id="hX" patternUnits="userSpaceOnUse" width="8" height="8"><rect width="8" height="8" fill="var(--orange-soft)"/><path d="M0 0L8 8M8 0L0 8" stroke="var(--orange)" stroke-width="2.4"/></pattern>'
+    + '<filter id="pencil" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter></defs>';
+  const R = (x,y,w,h,fill,stroke,sw,extra) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="${stroke||'none'}" stroke-width="${sw||0}" ${extra||''}/>`;
+  const Ln = (x1,y1,x2,y2,w,dash,col) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col||'var(--graphite)'}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+  const T = (x,y,s,size,anchor) => `<text x="${x}" y="${y}" fill="var(--graphite)" font-family="Patrick Hand, Comic Sans MS, cursive" font-size="${size||18}" text-anchor="${anchor||'middle'}">${s}</text>`;
+  function sketch(s){ const texts = s.match(/<text[\s\S]*?<\/text>/g) || []; return DEFS + '<g filter="url(#pencil)">' + s.replace(/<text[\s\S]*?<\/text>/g,'') + '</g>' + texts.join(''); }
+  // Streifen über mehrere Ganze: segs = [{from,to (in Feldern), fill}]
+  function wholes(X,y,W,H,U,parts,segs){
+    const uw = W/U; let s = '';
+    for (let u=0;u<U;u++) s += R(X+u*uw,y,uw,H,'var(--sheet)');
+    segs.forEach(g => s += R(X+uw*g.from/parts, y, uw*(g.to-g.from)/parts, H, g.fill));
+    for (let u=0;u<U;u++){ for (let j=1;j<parts;j++) s += Ln(X+u*uw+uw*j/parts,y,X+u*uw+uw*j/parts,y+H,1.5); s += R(X+u*uw,y,uw,H,'none','var(--graphite)',3.2); }
+    return s;
+  }
+  function draw(){
+    const t = st.task, showPic = st.help !== 'aus';
+    $('fig').hidden = !showPic; if (!showPic) return;
+    const hide = st.help === 'kopf' && !st.revealed && t.kind !== 'fehler';
+    $('picwrap').hidden = hide; $('hiddenpic').hidden = !hide;
+    if (hide){ $('piccap').textContent = ''; return; }
+    let s = '', h = 280;
+    const k = t.kind;
+    if (k === 'mz' || k === 'mz2'){
+      const U = Math.max(1, Math.ceil(t.a*t.n/t.b)), segs = [];
+      for (let i=0;i<t.n;i++) segs.push({from:i*t.a, to:(i+1)*t.a, fill: i%2 ? 'url(#hY)' : 'url(#hO)'});
+      s += T(70,38,`${t.a}/${t.b}`,20,'end') + wholes(80,14,480,44,U,t.b*U/U*1,[]).replace(/^/,'');
+      s = T(70,40,`${t.a}/${t.b}`,20,'end') + wholes(80,16,480/U,40,1,t.b,[{from:0,to:t.a,fill:'url(#hO)'}]);
+      s += T(70,130,`· ${t.n}`,20,'end') + wholes(80,104,480,48,U,t.b,segs.map(g => ({from:g.from, to:g.to, fill:g.fill})).map(g => g)).replace(/x="NaN"/g,'');
+      s += T(300,200, `${t.n}-mal ${F(t.a)} = ${F(t.a*t.n)}. Ein Ganzes hat ${F(t.b)}.`, 19);
+      $('piccap').textContent = U > 1 ? 'Jedes umrandete Stück ist ein Ganzes. Die Farben wechseln bei jedem neuen Summanden.' : 'Die Farben wechseln bei jedem neuen Summanden.';
+      h = 220;
+    } else if (k === 'mbb'){
+      const X=150, Y=16, W=300, H=200;
+      s += R(X,Y,W,H,'var(--sheet)') + R(X,Y,W*t.c/t.d,H,'url(#hO)');
+      s += R(X,Y,W*t.c/t.d,H*t.a/t.b,'url(#hX)');
+      for (let i=1;i<t.d;i++) s += Ln(X+W*i/t.d,Y,X+W*i/t.d,Y+H,3);
+      for (let r=1;r<t.b;r++) s += Ln(X,Y+H*r/t.b,X+W,Y+H*r/t.b,1.8,'7 5');
+      s += R(X,Y,W,H,'none','var(--graphite)',3.6);
+      s += T(300,250,`Orange: ${t.c}/${t.d} vom Beet. Davon ${t.a}/${t.b}: die gekreuzten Felder.`,18);
+      $('piccap').textContent = st.solved ? `${t.a*t.c} gekreuzte Felder von ${t.b*t.d} Feldern im Ganzen.` : 'Zähle die gekreuzten Felder und alle Felder des Beets.';
+      h = 270;
+    } else if (k === 'dz1' || k === 'dz2'){
+      const X=150, Y=16, W=300, H=200;
+      s += R(X,Y,W,H,'var(--sheet)') + R(X,Y,W*t.a/t.b,H,'url(#hO)');
+      s += R(X,Y,W*t.a/t.b,H/t.n,'url(#hY)');
+      for (let i=1;i<t.b;i++) s += Ln(X+W*i/t.b,Y,X+W*i/t.b,Y+H,3);
+      for (let r=1;r<t.n;r++) s += Ln(X,Y+H*r/t.n,X+W,Y+H*r/t.n,1.8,'7 5');
+      s += R(X,Y,W,H,'none','var(--graphite)',3.6);
+      s += T(300,250,`${t.a}/${t.b} wird auf ${t.n} gleiche Teile verteilt. Gelb ist ein Teil davon.`,18);
+      $('piccap').textContent = `Jedes Feld ist in ${t.n} kleinere Felder geteilt. Das Ganze hat jetzt ${t.b*t.n} Felder.`;
+      h = 270;
+    } else if (k === 'dbg' || k === 'dbv' || k === 'dk'){
+      const N = (k === 'dbv' && t.N) ? t.N : lcm(t.b,t.d), x = t.a*N/t.b, y = t.c*N/t.d;
+      const X = 110, W = 460, H = 40;
+      s += T(X-12,40,`${t.a}/${t.b}`,20,'end') + wholes(X,16,W,H,1,N,[{from:0,to:x,fill:'url(#hO)'}]);
+      const segs = []; let pos = 0, i = 0;
+      while (pos < x){ const to = Math.min(pos+y, x); segs.push({from:pos, to, fill: i%2 ? 'url(#hY)' : 'url(#hX)'}); pos += y; i++; }
+      s += T(X-12,108,`${t.c}/${t.d}`,20,'end') + wholes(X,84,W,H,1,N,segs);
+      segs.forEach((g,j) => { const full = g.to - g.from === y; s += T(X+W*(g.from+g.to)/2/N, 150, full ? `${j+1}` : `${g.to-g.from}/${y}`, 17); });
+      s += T(300,196, `Wie oft passt ${t.c}/${t.d} in ${t.a}/${t.b}? ${st.solved ? 'Ergebnis: '+fmt(x/gcd(x,y), y/gcd(x,y))+'-mal.' : ''}`, 19);
+      $('piccap').textContent = `Beide Brüche mit ${N} gleich großen Feldern: ${t.c}/${t.d} sind ${F(y)}, ${t.a}/${t.b} sind ${F(x)}.`;
+      h = 220;
+    } else if (k === 'fehler'){
+      const vals = [t.wn/t.wd, t.rn/t.rd, t.a/t.b];
+      const U = Math.max(1, Math.ceil(Math.max(...vals) - 1e-9)), X = 170, W = 400, H = 36, uw = W/U;
+      const row = (y, label, p, q, fill) => { let r = T(X-12,y+25,label,18,'end'); for (let u=0;u<U;u++) r += R(X+u*uw,y,uw,H,'var(--sheet)'); r += R(X,y,uw*p/q,H,fill); for (let u=0;u<U;u++) r += R(X+u*uw,y,uw,H,'none','var(--graphite)',3); return r; };
+      s += row(14, `${t.a}/${t.b}`, t.a, t.b, 'url(#hO)');
+      s += row(66, `${MUL?'Max':'Mia'}: ${fmt(t.wn,t.wd)}`, t.wn, t.wd, 'url(#hX)');
+      if (st.solved) s += row(118, `richtig: ${fmt(t.rn/gcd(t.rn,t.rd), t.rd/gcd(t.rn,t.rd))}`, t.rn, t.rd, 'url(#hY)');
+      $('piccap').textContent = (U > 1 ? 'Jedes umrandete Stück ist ein Ganzes. ' : '') + (MUL ? (t.n ? `Malnehmen mit ${t.n} heißt: ${t.n}-mal so viel.` : 'Ein Teil von einem Teil ist kleiner als beide Brüche.') : (t.n ? `Teilen durch ${t.n} heißt: weniger als vorher.` : 'Vergleiche die Längen.'));
+      h = st.solved ? 170 : 118;
+    }
+    $('pic').setAttribute('viewBox', `0 0 600 ${h}`);
+    $('pic').innerHTML = sketch(s);
+  }
+
+  // ---------- Prüfen ----------
+  function setFb(kind,msg){ const f=$('fb'); f.className='feedback '+kind; f.textContent = kind === 'tip' ? msg.replace(/^Tipp:\s*/,'') : msg; $('hint').classList.toggle('tip-on', kind === 'tip'); }
+  function fail(msg){ st.failed = true; st.streak = 0; $('streak').textContent = 0; setFb('bad', msg); }
+  function win(msg){
+    if (!st.solved){
+      st.solved = true; st.score++; if (!st.failed) st.streak++;
+      if (st.app === 'path'){
+        const g = STAGES[path.stage].goal, wasDone = path.prog[path.stage] >= g;
+        if (path.prog[path.stage] < g) path.prog[path.stage]++;
+        if (!wasDone && path.prog[path.stage] >= g && path.stage === STAGES.length-1) setTimeout(showFinish, 1600);
+        if (path.prog[path.stage] >= g){
+          path.unlocked = Math.max(path.unlocked, Math.min(path.stage+1, STAGES.length-1));
+          msg += path.stage < STAGES.length-1 ? ' Station geschafft! Weiter geht es mit der nächsten Station.' : ' Du hast den ganzen Übungsweg geschafft!';
+        }
+        savePath();
+      }
+    }
+    $('score').textContent = st.score; $('streak').textContent = st.streak;
+    st.revealed = true; build(); setFb('ok', msg); $('next').focus({preventScroll:true});
+  }
+  function check(){
+    const t = st.task; if (st.solved) return;
+    if (t.kind === 'fehler'){
+      if (!st.pick) return setFb('bad','Wähle zuerst eine Aussage aus.');
+      if (st.pick === 'right') return win(`Genau! Richtig ist ${fmt(t.rn/gcd(t.rn,t.rd), t.rd/gcd(t.rn,t.rd))}. Im Bild siehst du den Unterschied.`);
+      if (st.pick === 'ok') return fail(MUL ? 'Vergleiche im Bild: Passt die Größe von Max’ Ergebnis?' : 'Vergleiche im Bild: Passt die Größe von Mias Ergebnis?');
+      return fail('Kürzen ändert die Größe nicht. Das Ergebnis hat aber eine ganz andere Größe als das richtige Ergebnis.');
+    }
+    const S = st.steps[st.step];
+    const [ok, msg] = S.check();
+    if (ok === null) return setFb('bad', msg);
+    if (!ok) return fail(msg);
+    // Schritt geschafft
+    if (st.step === st.steps.length - 1){
+      const [p,q] = st.res || [0,1];
+      if (st.kurz && !S.kurz && gcd(p,q) > 1){
+        st.steps.push(kurzStep(p,q)); st.step++; if (st.help === 'kopf') st.revealed = true;
+        build(); setFb('ok', msg + ' Kürze jetzt noch so weit wie möglich.'); focusStep(); return;
+      }
+      const extra = !st.kurz && !S.kurz && gcd(p,q) > 1 ? ` Übrigens: ${p}/${q} kann man noch kürzen.` : '';
+      return win(msg + extra);
+    }
+    st.step++; if (st.help === 'kopf') st.revealed = true;
+    build(); setFb('ok', msg); focusStep();
+  }
+
+  function hint(){
+    const t = st.task; st.hints++;
+    if (t.kind === 'fehler') return setFb('tip', MUL ? (t.n ? `Tipp: ${t.a}/${t.b} · ${t.n} ist dasselbe wie ${t.n}-mal ${t.a}/${t.b} addiert. Wird Max’ Ergebnis größer?` : 'Tipp: Ein Teil von einem Teil ist kleiner als beide Brüche. Ist Max’ Ergebnis kleiner?') : (t.n ? `Tipp: Wenn man ${t.a}/${t.b} auf ${t.n} verteilt, bekommt jeder weniger. Ist Mias Ergebnis kleiner?` : 'Tipp: Beim Teilen durch einen Bruch nimmt man mit dem Kehrwert mal: Zähler und Nenner des zweiten Bruchs tauschen.'));
+    const S = st.steps[st.step], k = t.kind;
+    if (S && S.kurz){ const [p,q] = st.res; return setFb('tip', `Tipp: Die größte Zahl, durch die du ${p} und ${q} teilen kannst, ist ${gcd(p,q)}. Sie kommt unter das Gleichheitszeichen.`); }
+    const H = {
+      mz: `Tipp: Zähle alle gefärbten Felder zusammen: ${t.n}-mal ${t.a}.`,
+      mz2: st.hints === 1 ? `Tipp: Stell es dir als Plusaufgabe vor: ${Array(t.n).fill(t.a+'/'+t.b).join(' + ')}.` : `Tipp: Zähler mal ${t.n}: ${t.a} · ${t.n}. Der Nenner bleibt ${t.b}.`,
+      mbb: st.hints === 1 ? `Tipp: ${t.a}/${t.b} · ${t.c}/${t.d} heißt ${t.a}/${t.b} von ${t.c}/${t.d}. Zähle im Beet die gekreuzten Felder.` : `Tipp: Zähler mal Zähler (${t.a} · ${t.c}), Nenner mal Nenner (${t.b} · ${t.d}).`,
+      dz1: st.hints === 1 ? `Tipp: Verteile die ${F(t.a)} auf ${t.n} Kinder. Wie viele Felder bekommt jedes?` : `Tipp: ${t.a} : ${t.n} = ${t.a/t.n}. Der Nenner bleibt ${t.b}.`,
+      dz2: st.hints === 1 ? `Tipp: ${F(t.a)} lassen sich nicht gut auf ${t.n} verteilen. Teile jedes Feld in ${t.n} kleinere Felder.` : `Tipp: Nenner mal ${t.n}: ${t.b} · ${t.n} = ${t.b*t.n}. Der Zähler bleibt ${t.a}.`,
+      dbg: `Tipp: Wie oft passen ${F(t.c)} in ${F(t.a)}? Rechne ${t.a} : ${t.c}. Bleibt etwas übrig, wird das Ergebnis ein Bruch.`,
+      dk: st.step === 0 ? `Tipp: Beim Kehrwert tauschen Zähler und Nenner: aus ${t.c}/${t.d} wird ${t.d}/${t.c}.` : `Tipp: Zähler mal Zähler (${t.a} · ${t.d}), Nenner mal Nenner (${t.b} · ${t.c}).`,
+      dbv: st.step === 0 ? `Tipp: Zähle die Vielfachen des kleineren Nenners ${Math.min(t.b,t.d)} auf: ${Array.from({length:6},(_,i)=>Math.min(t.b,t.d)*(i+1)).join(', ')} … Welche passt auch zu ${Math.max(t.b,t.d)}?` : st.step === 1 ? `Tipp: Die Zahl über dem Gleichheitszeichen sagt dir, womit du malnimmst.` : `Tipp: Der gemeinsame Nenner fällt weg. Rechne ${t.x} : ${t.y}.`
+    };
+    setFb('tip', H[k] || 'Tipp: Rechne Schritt für Schritt.');
+  }
+
+  // ---------- Übungsweg / Modus ----------
+  function applyStage(){ const S = STAGES[path.stage]; Object.assign(st, {kind:S.kind, help:S.help, kurz:S.kurz, lvl:S.lvl}); }
+  function goStage(i){ path.stage = i; savePath(); applyStage(); newTask(); }
+  function renderStage(){
+    if (st.app !== 'path'){ $('next').textContent = 'Neue Aufgabe'; $('next').classList.remove('go'); return; }
+    const ol = $('stations'); ol.innerHTML = '';
+    STAGES.forEach((S,i) => {
+      const li = document.createElement('li'), bt = document.createElement('button');
+      bt.type = 'button'; bt.textContent = i+1; bt.title = S.t; bt.setAttribute('aria-label', `Station ${i+1}: ${S.t}`);
+      if (path.prog[i] >= S.goal) bt.classList.add('done');
+      if (i === path.stage){ bt.classList.add('current'); bt.setAttribute('aria-current','step'); }
+      bt.disabled = i > path.unlocked;
+      bt.addEventListener('click', () => goStage(i));
+      li.appendChild(bt); ol.appendChild(li);
+    });
+    const S = STAGES[path.stage], p = Math.min(path.prog[path.stage], S.goal);
+    $('stage-title').textContent = `Station ${path.stage+1}: ${S.t}`;
+    $('stage-intro').textContent = S.i;
+    $('stage-prog').textContent = `${p} von ${S.goal} richtig`;
+    $('dots').innerHTML = Array.from({length:S.goal},(_,j)=>`<span class="${j<p?'on':''}"></span>`).join('');
+    const done = p >= S.goal && path.stage < STAGES.length-1;
+    $('next').textContent = done ? `Weiter zu Station ${path.stage+2}` : 'Neue Aufgabe';
+    $('next').classList.toggle('go', done);
+  }
+  function setApp(a){
+    st.app = a;
+    $('path').hidden = a !== 'path'; $('settings').hidden = a === 'path';
+    if (a === 'path') applyStage();
+    else {
+      Object.assign(st, FREE);
+      [['seg-kind','kind'],['seg-help','help'],['seg-kurz','kurz'],['seg-lvl','lvl']].forEach(([id,key]) =>
+        $(id).querySelectorAll('button').forEach(bt => bt.setAttribute('aria-pressed', String(bt.dataset.v) === String(key === 'kurz' ? (st.kurz?1:0) : st[key]) ? 'true' : 'false')));
+    }
+    newTask();
+  }
+  function showFinish(){
+    ['path','settings'].forEach(id => $(id).hidden = true);
+    document.querySelector('.appswitch').hidden = true; document.querySelector('section.card').hidden = true;
+    $('finish').hidden = false; window.scrollTo({top:0, behavior:'smooth'}); $('finish-free').focus({preventScroll:true});
+  }
+  function hideFinish(){ $('finish').hidden = true; document.querySelector('.appswitch').hidden = false; document.querySelector('section.card').hidden = false; }
+
+  const TAGS = {"dz1": "Bruch : Zahl", "dz2": "Bruch : Zahl", "dbg": "Bruch : Bruch", "dbv": "Bruch : Bruch", "dk": "Kehrwert", "fehler": "Fehler finden"};
+  const QUEST = {dz1: t => `Verteile ${t.a}/${t.b} auf ${t.n} gleiche Teile.`, dz2: t => `Verteile ${t.a}/${t.b} auf ${t.n} gleiche Teile.`, dbg: t => `Wie oft passt ${t.c}/${t.d} in ${t.a}/${t.b}?`, dbv: t => `Wie oft passt ${t.c}/${t.d} in ${t.a}/${t.b}?`, dk: t => 'Dividiere mit dem Kehrwert.', fehler: t => 'Mia rechnet so. Stimmt das?'};
+
+  function seg(id, key, cast){
+    $(id).querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => {
+      $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === bt ? 'true' : 'false'));
+      st[key] = cast ? cast(bt.dataset.v) : bt.dataset.v; FREE[key] = st[key];
+      if (key === 'help'){ st.revealed = st.help === 'sofort' || st.solved; draw(); }
+      else newTask();
+    }));
+  }
+  seg('seg-kind','kind'); seg('seg-help','help'); seg('seg-kurz','kurz', v => v === '1'); seg('seg-lvl','lvl',Number);
+  $('seg-app').querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => {
+    $('seg-app').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === bt ? 'true' : 'false'));
+    setApp(bt.dataset.v);
+  }));
+  $('reveal').addEventListener('click', () => { st.revealed = true; draw(); });
+  $('check').addEventListener('click', check);
+  $('hint').addEventListener('click', hint);
+  $('next').addEventListener('click', () => {
+    if (st.app === 'path' && path.prog[path.stage] >= STAGES[path.stage].goal && path.stage < STAGES.length-1){ goStage(path.stage+1); return; }
+    newTask();
+  });
+  $('finish-free').addEventListener('click', () => { hideFinish(); document.querySelectorAll('#seg-app button')[1].click(); });
+  $('finish-back').addEventListener('click', () => { hideFinish(); document.querySelectorAll('#seg-app button')[0].click(); });
+  $('finish-reset').addEventListener('click', () => { path.stage = 0; path.unlocked = 0; path.prog = STAGES.map(()=>0); savePath(); hideFinish(); document.querySelectorAll('#seg-app button')[0].click(); });
+
+  applyStage(); newTask();
+})();
+</script>
+</body>
+</html>
