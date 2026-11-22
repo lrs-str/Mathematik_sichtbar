@@ -23,3 +23,9 @@ Die Seiten brauchen keinen Server und keine Installation. Die Handschrift-Schrif
 ## Quelle
 
 Didaktische Impulse nach „Mathe sicher können“ (DZLM), Baustein B2 Gleichwertige Brüche (Schink, Pöhler-Friedrich, Prediger & Wessel 2026), CC BY-NC-SA 4.0.
+
+
+Lizenz
+Dieses Projekt steht unter der Lizenz CC BY-NC-SA 4.0.
+
+Details: https://creativecommons.org/licenses/by-nc-sa/4.0/
